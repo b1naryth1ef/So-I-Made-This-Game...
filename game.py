@@ -1,5 +1,5 @@
 import pygame, random, sys, time, pygcurse, thread
-import inputr
+import inputr, reqs
 from pygame.locals import *
 from levels import level1, level2
 from mapper import Map
@@ -38,7 +38,7 @@ p1.levels = {
 }
 p1.selectMap(1)
 p1.ai = [AI('Joe', p1, color=BLUE, Map=1).spawn()]
-
+p1.map.pathRender()
 updateRender = True #Update our Screen once
 
 win.fill(bgcolor=BLACK)
@@ -46,23 +46,25 @@ win.putchars('Teh Game', 20, 3, fgcolor=WHITE)
 win.putchars('[enter]', 21, 4, fgcolor=WHITE)
 win.update()
 inp.waitFor('enter')
+reqs.startup()
 
 def screenLoop():
 	global updateRender
 	#p1.map.updateChar((10,10), "8") #This physically changes the map... Not really safe...
 	p1.map.modifyChar((10,10), "8") #This puts a place holder onto the map. Much safer...
 	updateRender = True	
-
+ 
+def inventory(): print reqs.selectionScreen(p1.inv)
+	
 def loop():
 	global updateRender, FRAME
 	global moveUp, moveDown, moveRight, moveLeft
 	while True:
-		
-		win.fill(bgcolor=BLACK)
 		_x = 0
 		if updateRender is True:
 			updateRender = False
 			render = p1.map.newNewRender()
+			win.fill(bgcolor=BLACK)
 			for line in render:
 				_x+=1
 				win.putchars(line, 1, _x, fgcolor=RED)
@@ -94,6 +96,8 @@ def loop():
 					updateRender = True
 			if 'x' in inp.value[0]: 
 				THREADS.append(thread.start_new_thread(screenLoop, ()))
+			if 'i' in inp.value[0]:
+				inventory()
 			
 		if p1.ai != None and p1.ai != []:
 			for i in p1.ai:

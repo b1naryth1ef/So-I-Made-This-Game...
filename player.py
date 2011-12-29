@@ -4,6 +4,12 @@ class Player():
 		self.char = char
 		self.pos = pos
 		self.realpos = lambda: [self.pos[0]-1, self.pos[1]-1]
+		self.inv = {
+		1:('A'),
+		2:('B'),
+		3:('C'),
+		4:('D'),
+		5:('E')}
 		self.map = None
 		self.levels = None
 		self.ai = None

@@ -16,7 +16,8 @@ keymap = {
 	K_a: 'a',
 	K_s: 's',
 	K_d: 'd',
-	K_x: 'x'
+	K_x: 'x',
+	K_i: 'i'
 }
 
 class KeyboardInput(object):
@@ -39,14 +40,24 @@ class KeyboardInput(object):
 		return self.value
 
 	def waitFor(self, value, Type=0):
-		if value in keymap.values():
-			while True:
-				time.sleep(.03)
-				self.retrieve()
-				if self.value != ([], []):
-					if Type == 0:
-						if value in self.value[0] or value in self.value[1]: return True
-					elif Type == 1:
-						if value in self.value[0]: return True
-					elif Type == 2:
-						if value in self.value[1]: return True
+		while True:
+			time.sleep(.02)
+			self.retrieve()
+			if self.value != ([], []):
+				if Type == 0:
+					if value in self.value[0] or value in self.value[1]: return True
+				elif Type == 1:
+					if value in self.value[0]: return True
+				elif Type == 2:
+					if value in self.value[1]: return True
+	
+	def mwaitFor(self, values, Type=0):
+		while True:
+			time.sleep(0.02)
+			self.retrieve()
+			if self.value !=([], []):
+				for i in self.value[Type]:
+					for x in values:
+						if i==x:
+							return i
+
