@@ -27,7 +27,6 @@ class AI():
 			self.pos[0] += 1
 			return True
 
-
 class Pos():
 	def __init__(self, x, y):
 		self.x = x

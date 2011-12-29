@@ -5,6 +5,7 @@ from levels import level1, level2
 from mapper import Map
 from player import Player
 from ai import AI
+from items import Apple
 
 GREEN = (0, 255, 0)
 BLACK = (0,0,0)
@@ -39,6 +40,7 @@ p1.levels = {
 p1.selectMap(1)
 p1.ai = [AI('Joe', p1, color=BLUE, Map=1).spawn()]
 p1.map.pathRender()
+p1.inv[1] = Apple()
 updateRender = True #Update our Screen once
 
 win.fill(bgcolor=BLACK)
@@ -54,7 +56,11 @@ def screenLoop():
 	p1.map.modifyChar((10,10), "8") #This puts a place holder onto the map. Much safer...
 	updateRender = True	
  
-def inventory(): print reqs.selectionScreen(p1.inv)
+def inventory():
+	li = p1.niceInv()
+	choice = reqs.selectionScreen(li, 'Inventory:', ORANGE)
+	if p1.inv[choice].type == 'food':
+		p1.eatObj(p1.inv[choice])
 	
 def loop():
 	global updateRender, FRAME
