@@ -8,12 +8,7 @@ class Player():
 		self.health = [50,50]
 		self.poisoned = (False, 0, 0) #Is poisoned and amount per tick, and duration
 		self.realpos = lambda: [self.pos[0]-1, self.pos[1]-1]
-		self.inv = {
-		1:None,
-		2:None,
-		3:None,
-		4:None,
-		5:None}
+		self.inv = items.BackPack()
 		self.map = None
 		self.levels = None
 		self.ai = None
@@ -23,21 +18,9 @@ class Player():
 
 		self.poisonTime = 0
 
-	def pickup(self, item):
-		rep = False
-		for i in self.inv:
-			if self.inv[i] == None:
-				self.inv[i] = item
-				rep = True
-				break
-		
-		if rep is True:
-			return True
-		else:
-			return False #Call a msg
+	def pickup(self, item): return self.inv.addItem(item)
 
-	def newPickup(self, item):
-		self.pickup(items.itemz[item]())
+	def newPickup(self, item): return self.pickup(items.itemz[item]())
 
 	def tick(self):
 		if self.poisoned[0] is True:
@@ -52,9 +35,9 @@ class Player():
 
 	def niceInv(self):
 		li = {}
-		for i in self.inv:
-			if self.inv[i] != None:
-				li[i] = self.inv[i].name
+		for i in self.inv.s:
+			if self.inv.s[i] != None:
+				li[i] = self.inv.s[i].name
 		return li
 
 	def die(self):

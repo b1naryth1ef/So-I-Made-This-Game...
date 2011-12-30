@@ -1,3 +1,46 @@
+class Storage():
+	def __init__(self, name, slots=5, Type=''):
+		self.slots = slots
+		self.name = name
+		self.type = Type
+
+		self.s = {}
+
+		self.genStorage()
+
+	def genStorage(self):
+		for i in range(1,self.slots+1): #xrange is a waste here.
+			self.s[i] = None
+
+	def addItem(self, item):
+		for x,y in enumerate(self.s.values()):
+			pos = x+1
+			if y == None:
+				self.s[pos] = item
+				return True
+		return False
+	
+	def rmvItem(self, slot):
+		del self.s[slot]
+		return True
+
+	def popItem(self, slot):
+		ret = self.s[slot]
+		del self.s[slot]
+		return ret
+
+	def __setitem__(self, item, value):
+		self.s[item] = value
+	
+	def __getitem__(self, item):
+		return self.s[item]
+
+class BackPack(Storage):
+	def __init__(self):
+		self.id = 4
+		Storage.__init__(self, 'Back Pack', 5, 'inventory')
+
+
 class Food():
 	def __init__(self, name, health=0, unhealth=0, poison=False, poisonChance=0):
 		self.name = name
@@ -50,5 +93,6 @@ itemz = {
 	0:Apple,
 	1:WoodSword,
 	2:IronSword,
-	3:GoldPlatedSword
+	3:GoldPlatedSword,
+	4:BackPack,
 }
