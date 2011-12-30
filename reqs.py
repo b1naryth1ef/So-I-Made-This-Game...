@@ -2,6 +2,8 @@ def startup():
 	global win,p1,inp,FRAME,RED,BLUE,BLACK
 	from game import win, p1, inp, FRAME, RED, BLUE, BLACK
 
+trade = lambda x,y: (y,x)
+
 def startupScreen(win):
 	pass
 

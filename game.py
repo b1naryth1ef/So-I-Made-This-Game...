@@ -15,7 +15,7 @@ ORANGE = (255,140,0)
 BLUE = (0,0,255)
 
 THREADS = []
-MESSAGES = [('Forever \'a testing!', BLUE, 3)]
+MESSAGES = []
 WINWIDTH = 50
 WINHEIGHT = 25
 TEXTCOLOR = WHITE
@@ -50,6 +50,8 @@ win.putchars('[enter]', 21, 4, fgcolor=WHITE)
 win.update()
 inp.waitFor('enter')
 reqs.startup()
+
+def addMessage(msg, color=BLUE): MESSAGES.append((msg,color))
 
 def screenLoop():
 	global updateRender
@@ -86,7 +88,7 @@ def loop():
 				_x+=1
 				r = True
 				win.putchars(i[0], 1, _x, fgcolor=i[1])
-				win.putchars('[enter]', len(i[0])+1, _x, fgcolor=ORANGE)
+				win.putchars('[enter]', len(i[0])+2, _x, fgcolor=ORANGE)
 				MESSAGES.remove(i)
 			win.putchars('Pos: %s | Frame: %s' % (p1.pos, FRAME), 1, _x+2, fgcolor=ORANGE)
 			win.update()

@@ -5,6 +5,7 @@ class Player():
 		self.name = name
 		self.char = char
 		self.pos = pos
+		self.lastPos = pos
 		self.health = [50,50]
 		self.poisoned = (False, 0, 0) #Is poisoned and amount per tick, and duration
 		self.realpos = lambda: [self.pos[0]-1, self.pos[1]-1]
@@ -34,7 +35,8 @@ class Player():
 			i = self.map.infoMap[tuple(self.realpos())]['pickup'][0]
 			y = self.newPickup(i)
 			if y[1] is False:
-				game.MESSAGES.append(('Your inventory is full! Can\'t pickup %s!' % y[0].name, game.BLUE, 4))
+				game.MESSAGES.append(('Can\'t pickup %s, inventory full!' % y[0].name, game.BLUE, 4))
+				self.moveBack()
 				return None
 			else:
 				game.MESSAGES.append(('Picked up a %s' % (y[0].name), game.BLUE, 4))
@@ -88,6 +90,9 @@ class Player():
 				ret[tuple(i.pos)] = i
 			return ret
 
+	def moveBack(self):
+		self.pos, self.lastPos = reqs.trade(self.pos, self.lastPos)
+
 	def move(self, x=0, y=0):
 		cPos = self.pos
 		nPos = [self.pos[0]+x, self.pos[1]+y]
@@ -100,6 +105,7 @@ class Player():
 				self.lastmap = self.map.id
 				self.map = self.levels[self.map.infoMap[cPos]['portal'][1]]
 				return True
+			self.lastPos = self.pos
 			self.pos = nPos
 			return True
 		else:
