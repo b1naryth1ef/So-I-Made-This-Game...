@@ -15,6 +15,7 @@ ORANGE = (255,140,0)
 BLUE = (0,0,255)
 
 THREADS = []
+MESSAGES = [('Forever \'a testing!', BLUE, 3)]
 WINWIDTH = 50
 WINHEIGHT = 25
 TEXTCOLOR = WHITE
@@ -67,8 +68,9 @@ def loop():
 	global updateRender, FRAME
 	global moveUp, moveDown, moveRight, moveLeft
 	while True:
-		_x = 0
 		if updateRender is True:
+			_x = 0
+			r = []
 			p1.tick()
 			updateRender = False
 			render = p1.map.newNewRender()
@@ -80,13 +82,16 @@ def loop():
 				for bot in p1.ai:
 					if bot.alive is True and bot.map == p1.map.id:
 						win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
+			for i in MESSAGES:
+				_x+=1
+				r = True
+				win.putchars(i[0], 1, _x, fgcolor=i[1])
+				win.putchars('[enter]', len(i[0])+1, _x, fgcolor=ORANGE)
+				MESSAGES.remove(i)
 			win.putchars('Pos: %s | Frame: %s' % (p1.pos, FRAME), 1, _x+2, fgcolor=ORANGE)
 			win.update()
-			if FRAME >= 1000000:
-				print 'Reseting frame count; it\'s way too high!'
-				FRAME = 0
-			else:
-				FRAME += 1
+			if r is True: inp.waitFor('enter', 1)
+			FRAME += 1
 		inp.retrieve()
 		if inp.value != ([], []):
 			if 'q' in inp.value[0]: sys.exit()

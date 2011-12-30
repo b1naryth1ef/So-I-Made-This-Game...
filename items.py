@@ -29,6 +29,8 @@ class Storage():
 		del self.s[slot]
 		return ret
 
+	def iterate(self): return self.s
+
 	def __setitem__(self, item, value):
 		self.s[item] = value
 	

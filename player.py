@@ -1,4 +1,4 @@
-import reqs, random, items
+import reqs, random, items, game
 
 class Player():
 	def __init__(self, name, char, pos=[3,3]):
@@ -20,15 +20,25 @@ class Player():
 
 	def pickup(self, item): return self.inv.addItem(item)
 
-	def newPickup(self, item): return self.pickup(items.itemz[item]())
+	def newPickup(self, item): 
+		i = items.itemz[item]()
+		return (i, self.pickup(i))
 
 	def tick(self):
 		if self.poisoned[0] is True:
 			if time.time() - self.poisonTime >= self.poisoned[2]:
 				self.unheal(self.poisoned[1])
 				self.poisonTime = time.time()
-		if self.map.hitMap[tuple(self.realpos())][1] == 'PICKUP':
-			self.newPickup(self.map.infoMap[tuple(self.realpos())]['pickup'][0])
+
+		if self.map.hitMap[tuple(self.realpos())][1] == 'PICKUP': #Idk why I put this here. Could just as easily been in the main loop...
+			i = self.map.infoMap[tuple(self.realpos())]['pickup'][0]
+			y = self.newPickup(i)
+			if y[1] is False:
+				game.MESSAGES.append(('Your inventory is full! Can\'t pickup %s!' % y[0].name, game.BLUE, 4))
+				return None
+			else:
+				game.MESSAGES.append(('Picked up a %s' % (y[0].name), game.BLUE, 4))
+
 			if self.map.infoMap[tuple(self.realpos())]['pickup'][1] is True:
 				self.map.updateChar((tuple(self.pos)), ' ')
 				self.map.hitMap[tuple(self.realpos())] = (True, 'AIR')
