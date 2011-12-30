@@ -5,7 +5,7 @@ def startup():
 def startupScreen(win):
 	pass
 
-def selectionScreen(sel, header, hcolor=(255,0,0)):
+def selectionScreen(sel, header, hcolor=(255,0,0), footer='', fcolor=(255,0,0)):
 	global win, p1, inp, FRAME, RED, BLUE, BLACK
 	selected = 1
 	print sel
@@ -14,7 +14,7 @@ def selectionScreen(sel, header, hcolor=(255,0,0)):
 		win.fill(bgcolor=BLACK)
 		win.putchars(header, 1, 1, fgcolor=hcolor)
 		if len(sel.keys()) > 1:
-			for i in xrange(1, len(sel.keys())):
+			for i in xrange(1, len(sel.keys())+1):
 				line = '[%s] %s' % (i, sel[i])
 				if i == selected: win.putchars(line, 1, i+1, fgcolor=RED, bgcolor=BLUE)
 				else: win.putchars(line, 1, i+1, fgcolor=RED)
@@ -27,7 +27,7 @@ def selectionScreen(sel, header, hcolor=(255,0,0)):
 		val = inp.mwaitFor(['w','s','enter'])
 		if val == 'w' and selected >= 2:
 			selected -= 1
-		elif val == 's' and selected < len(sel.keys())-1:
+		elif val == 's' and selected < len(sel.keys()):
 			selected += 1
 		elif val == 'enter':
 			return selected

@@ -1,4 +1,4 @@
-import reqs, random
+import reqs, random, items
 
 class Player():
 	def __init__(self, name, char, pos=[3,3]):
@@ -23,11 +23,32 @@ class Player():
 
 		self.poisonTime = 0
 
+	def pickup(self, item):
+		rep = False
+		for i in self.inv:
+			if self.inv[i] == None:
+				self.inv[i] = item
+				rep = True
+				break
+		
+		if rep is True:
+			return True
+		else:
+			return False #Call a msg
+
+	def newPickup(self, item):
+		self.pickup(items.itemz[item]())
+
 	def tick(self):
 		if self.poisoned[0] is True:
 			if time.time() - self.poisonTime >= self.poisoned[2]:
 				self.unheal(self.poisoned[1])
 				self.poisonTime = time.time()
+		if self.map.hitMap[tuple(self.realpos())][1] == 'PICKUP':
+			self.newPickup(self.map.infoMap[tuple(self.realpos())]['pickup'][0])
+			if self.map.infoMap[tuple(self.realpos())]['pickup'][1] is True:
+				self.map.updateChar((tuple(self.pos)), ' ')
+				self.map.hitMap[tuple(self.realpos())] = (True, 'AIR')
 
 	def niceInv(self):
 		li = {}

@@ -68,6 +68,7 @@ def loop():
 	while True:
 		_x = 0
 		if updateRender is True:
+			p1.tick()
 			updateRender = False
 			render = p1.map.newNewRender()
 			win.fill(bgcolor=BLACK)

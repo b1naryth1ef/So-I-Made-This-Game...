@@ -42,11 +42,11 @@ class Map():
 		self.niceMap[pos[1]-1] = ''.join(newline)
 
 		if hit != None: #Update hitmap (should be tuplez)
-			self.hitMap[pos[1]-1][pos[0]-1] = hit
+			self.hitMap[(pos[1]-1, pos[0]-1)] = hit
+			#print self.hitMap[(pos[1]-1, pos[0]-1)]
 
 	def modifyChar(self, pos, char):
 		self.modify[tuple(pos)] = char
-
 
 	def render(self):
 		from colorama import init
