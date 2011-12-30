@@ -58,9 +58,10 @@ def screenLoop():
  
 def inventory():
 	li = p1.niceInv()
-	choice = reqs.selectionScreen(li, 'Inventory:', ORANGE)
-	if p1.inv[choice].type == 'food':
-		p1.eatObj(p1.inv[choice])
+	choice = reqs.selectionScreen(li, 'Inventory:', ORANGE, '[Enter] To select | [R] to dump | [Q] to exit', ORANGE, True)
+	if choice[0] != None and choice[1] != None:
+		if p1.inv[choice[0]].type == 'food':
+			p1.eatObj(p1.inv[choice[0]])
 	
 def loop():
 	global updateRender, FRAME

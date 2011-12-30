@@ -5,32 +5,48 @@ def startup():
 def startupScreen(win):
 	pass
 
-def selectionScreen(sel, header, hcolor=(255,0,0), footer='', fcolor=(255,0,0)):
+def selectionScreen(sel, header, hcolor=(255,0,0), footer='', fcolor=(255,0,0), removeable=False, niceremove=True):
 	global win, p1, inp, FRAME, RED, BLUE, BLACK
 	selected = 1
+	valy = 1
+	deld = []
 	print sel
 	while True:
 		FRAME+=1 #Count this as a frame broski!
 		win.fill(bgcolor=BLACK)
 		win.putchars(header, 1, 1, fgcolor=hcolor)
 		if len(sel.keys()) > 1:
-			for i in xrange(1, len(sel.keys())+1):
-				line = '[%s] %s' % (i, sel[i])
-				if i == selected: win.putchars(line, 1, i+1, fgcolor=RED, bgcolor=BLUE)
+			for i in xrange(0, len(sel.keys())):
+				line = '[%s] %s' % (i+1, sel[i+1])
+				if i+1 == selected: win.putchars(line, 1, i+1, fgcolor=RED, bgcolor=BLUE)
 				else: win.putchars(line, 1, i+1, fgcolor=RED)
-			win.update()
+				valy += 1
 		else:
 			win.fill(bgcolor=BLACK)
 			line = '[%s] %s' % (1, sel[1])
 			win.putchars(line, 1, 2, fgcolor=RED, bgcolor=BLUE)
-			win.update()
-		val = inp.mwaitFor(['w','s','enter'])
+			valy = 3
+		win.putchars(footer, 1, valy, fgcolor=fcolor)
+		win.update()
+		val = inp.mwaitFor(['w','s','enter', 'r', 'q'])
 		if val == 'w' and selected >= 2:
 			selected -= 1
 		elif val == 's' and selected < len(sel.keys()):
 			selected += 1
+		elif val == 'r':
+			if niceremove is True:
+				sel[selected] = 'Empty!'
+			else:
+				del sel[selected]
+			deld.append(selected)
+			print len(sel)
+			if len(sel) == 0:
+				return (selected, deld)
 		elif val == 'enter':
-			return selected
+			return (selected, deld)
+		elif val == 'q':
+			return (None, None)
+		valy = 1
 
 eatMessage = ['Om nom nom! Tis a good %s',
 'You eat the %s like a boss...',
