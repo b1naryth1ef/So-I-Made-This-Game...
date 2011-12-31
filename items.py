@@ -44,13 +44,14 @@ class BackPack(Storage):
 
 
 class Food():
-	def __init__(self, name, health=0, unhealth=0, poison=False, poisonChance=0):
+	def __init__(self, name, health=0, unhealth=0, poison=False, poisonChance=0, poisonTime=60):
 		self.name = name
 		self.type = 'food'
 		self.health = health
 		self.unhealth = unhealth
 		self.poison = poison
 		self.poisonChance = poisonChance
+		self.poisonTime = poisonTime
 		self.alive = True
 
 class Weapon():

@@ -24,6 +24,9 @@ class Player():
 	def newPickup(self, item): 
 		i = items.itemz[item]()
 		return (i, self.pickup(i))
+	
+	def niceHealth(self):
+		return '[%s%s]' % ('='*(self.health[0]/5), ' '*abs((self.health[0]-self.health[1])/5))
 
 	def tick(self):
 		if self.poisoned[0] is True:
@@ -73,7 +76,9 @@ class Player():
 			self.heal(obj.health)
 			self.unheal(obj.unhealth)
 			if obj.poison is True and random.randint(obj.poisonChance, 100):
-				pass
+				self.poisoned[0] = True
+				self.poisoned[1] = 1
+				self.poisoned[2] = obj.poisonTime
 
 	def moveUp(self): return self.move(y=-1)
 	def moveDown(self): return self.move(y=1)

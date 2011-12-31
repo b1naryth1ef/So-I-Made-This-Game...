@@ -84,6 +84,9 @@ def loop():
 				for bot in p1.ai:
 					if bot.alive is True and bot.map == p1.map.id:
 						win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
+			_x+=1
+			win.putchars('Health', 1, _x, fgcolor=BLUE)
+			win.putchars('%s' % (p1.niceHealth()), 7, _x, fgcolor=RED)
 			for i in MESSAGES:
 				_x+=1
 				r = True
@@ -97,22 +100,12 @@ def loop():
 		inp.retrieve()
 		if inp.value != ([], []):
 			if 'q' in inp.value[0]: sys.exit()
-			if 'w' in inp.value[0]: 
-				if p1.moveUp() is True:
-					updateRender = True
-			if 'a' in inp.value[0]: 
-				if p1.moveLeft() is True:
-					updateRender = True
-			if 's' in inp.value[0]: 
-				if p1.moveDown() is True:
-					updateRender = True
-			if 'd' in inp.value[0]: 
-				if p1.moveRight() is True:
-					updateRender = True
-			if 'x' in inp.value[0]: 
-				THREADS.append(thread.start_new_thread(screenLoop, ()))
-			if 'i' in inp.value[0]:
-				inventory()
+			if 'w' in inp.value[0] and p1.moveUp() is True: updateRender = True					
+			if 'a' in inp.value[0] and p1.moveLeft() is True: updateRender = True
+			if 's' in inp.value[0] and p1.moveDown() is True: updateRender = True
+			if 'd' in inp.value[0] and p1.moveRight() is True: updateRender = True
+			if 'x' in inp.value[0]: THREADS.append(thread.start_new_thread(screenLoop, ()))
+			if 'i' in inp.value[0]: inventory()
 			
 		if p1.ai != None and p1.ai != []:
 			for i in p1.ai:
