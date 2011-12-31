@@ -7,6 +7,8 @@ class Player():
 		self.pos = pos
 		self.lastPos = pos
 		self.health = [50,50]
+		self.dead = False
+		self.display = True
 		self.poisoned = (False, 0, 0) #Is poisoned and amount per tick, and duration
 		self.realpos = lambda: [self.pos[0]-1, self.pos[1]-1]
 		self.inv = items.BackPack()
@@ -47,6 +49,9 @@ class Player():
 			if self.map.infoMap[tuple(self.realpos())]['pickup'][1] is True:
 				self.map.updateChar((tuple(self.pos)), ' ')
 				self.map.hitMap[tuple(self.realpos())] = (True, 'AIR')
+		
+		if self.health[0] <= 0:
+			self.die()
 
 	def niceInv(self):
 		li = {}
@@ -57,6 +62,7 @@ class Player():
 
 	def die(self):
 		self.health[0] = 0
+		self.dead = True
 		print 'Deadz!'
 
 	def unheal(self, amount):

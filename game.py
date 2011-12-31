@@ -80,10 +80,10 @@ def loop():
 			for line in render:
 				_x+=1
 				win.putchars(line, 1, _x, fgcolor=RED)
-				win.putchar(p1.char, p1.pos[0], p1.pos[1], fgcolor=GREEN)
-				for bot in p1.ai:
-					if bot.alive is True and bot.map == p1.map.id:
-						win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
+			for bot in p1.ai:
+				if bot.alive is True and bot.map == p1.map.id:
+					win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
+			if p1.display is True: win.putchar(p1.char, p1.pos[0], p1.pos[1], fgcolor=GREEN)
 			_x+=1
 			win.putchars('Health', 1, _x, fgcolor=BLUE)
 			win.putchars('%s' % (p1.niceHealth()), 7, _x, fgcolor=RED)
