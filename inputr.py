@@ -21,9 +21,10 @@ keymap = {
 	K_r: 'r'
 }
 
+
 class KeyboardInput(object):
 	def __init__(self):
-		pass
+		self.keymap = keymap
 	def retrieve(self):
 		keys_pressed = []
 		keys_released = []
@@ -38,7 +39,22 @@ class KeyboardInput(object):
 			elif event.type == pygame.QUIT:
 				sys.exit() #Eventually we need to watch on this, and save shit before quitting
 		self.value = (keys_pressed, keys_released)
+		self.parseValue = ([],[])
+		for i in self.value[0]:
+			if i in keymap.keys():
+				self.parseValue[0].append(keymap[i])
+		for i in self.value[1]:
+			if i in keymap.keys():
+				self.parseValue[1].append(keymap[i])
 		return self.value
+
+	def simpleRet(self):
+		while 1:
+			event = pygame.event.poll()
+			if event.type == KEYDOWN:
+	  			return event.key
+   			else:
+	  			time.sleep(0.02)
 
 	def waitFor(self, value, Type=0):
 		while True:

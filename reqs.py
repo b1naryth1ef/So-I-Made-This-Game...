@@ -1,3 +1,5 @@
+import time, string
+from pygame.locals import *
 def startup():
 	global win,p1,inp,FRAME,RED,BLUE,BLACK
 	from game import win, p1, inp, FRAME, RED, BLUE, BLACK
@@ -6,6 +8,28 @@ trade = lambda x,y: (y,x)
 
 def startupScreen(win):
 	pass
+
+def sdisplay(text):
+	win.fill(bgcolor=BLACK)
+	win.putchars(text, 1, 1)
+	win.update()
+
+def ask(question):
+	current_string = []
+	sdisplay(question + ": " + string.join(current_string,""))
+	while 1:
+		inkey = inp.simpleRet()
+		if inkey == K_BACKSPACE:
+		  current_string = current_string[0:-1]
+		elif inkey == K_RETURN:
+		  break
+		elif inkey == K_MINUS:
+		  current_string.append("_")
+		elif inkey <= 127:
+		  current_string.append(chr(inkey))
+		sdisplay(question + ": " + string.join(current_string,""))
+	return string.join(current_string,"")
+
 
 def selectionScreen(sel, header, hcolor=(255,0,0), footer='', fcolor=(255,0,0), removeable=False, niceremove=True):
 	global win, p1, inp, FRAME, RED, BLUE, BLACK

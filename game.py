@@ -1,4 +1,4 @@
-import pygame, random, sys, time, pygcurse, thread
+import pygame, random, sys, os, time, pygcurse, thread
 import inputr, reqs
 from pygame.locals import *
 from levels import level1, level2
@@ -61,10 +61,40 @@ def screenLoop():
  
 def inventory():
 	li = p1.niceInv()
-	choice = reqs.selectionScreen(li, 'Inventory:', ORANGE, '[Enter] To select | [R] to dump | [Q] to exit', ORANGE, True)
+	choice = reqs.selectionScreen(li, 'Inventory:', ORANGE, '[Enter] to select | [R] to dump | [Q] to exit', ORANGE, True)
 	if choice[0] != None and choice[1] != None:
 		if p1.inv[choice[0]].type == 'food':
 			p1.eatObj(p1.inv[choice[0]])
+
+def findSaves(home=os.getcwd()):
+    """Find save files, and return a list of them"""
+    fn = []
+    try:
+        for i in os.listdir(os.path.join(home, 'saves')):
+            if i.endswith('.dat') and not i.startswith("_"):
+                fn.append(os.path.join(home, 'saves', i))
+        return fn
+    except:
+        os.mkdir(os.path.join(home, 'saves'))
+        return findSaves()
+
+def init():
+	win.fill(bgcolor=BLACK)
+	saves = findSaves()
+	if len(saves) is 0:
+		win.putchars('No save files found! Press [enter] to create new game...', 1, 1)
+		win.update()
+		inp.waitFor('enter', 1)
+		reqs.ask('Name')
+	else:
+		nicelist = {}
+		y = 0
+		for i in saves:
+			y+=1
+			nicelist[y] = i.split('/')[-1:][0]
+		nicelist[y+1] = '[New]'
+		print reqs.selectionScreen(nicelist, 'Save Files:', ORANGE, '[Enter] to select | [R] to dump | [Q] to exit', ORANGE, True)
+
 	
 def loop():
 	global updateRender, FRAME
@@ -114,5 +144,5 @@ def loop():
 						updateRender = True
 								
 		time.sleep(.01)
-
+init()
 loop()
