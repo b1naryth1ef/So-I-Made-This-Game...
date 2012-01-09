@@ -5,7 +5,7 @@ from levels import level1, level2
 from mapper import Map
 from player import Player
 from ai import AI
-from items import Apple
+from items import Apple, BadApple
 
 GREEN = (0, 255, 0)
 BLACK = (0,0,0)
@@ -22,6 +22,7 @@ TEXTCOLOR = WHITE
 BACKGROUNDCOLOR = (0, 0, 0)
 FPS = 5
 FRAME = 0
+LASTRENDER = 0
 
 win = pygcurse.PygcurseWindow(WINWIDTH, WINHEIGHT, fullscreen=False)
 win.autoupdate = False
@@ -36,7 +37,7 @@ p1.levels = {
 p1.selectMap(1)
 p1.ai = [AI('Joe', p1, color=BLUE, Map=1).spawn()]
 p1.map.pathRender()
-p1.inv[1] = Apple()
+p1.inv[1] = BadApple()
 
 win.fill(bgcolor=BLACK)
 win.putchars('Teh Game', 20, 3, fgcolor=WHITE)
@@ -106,9 +107,17 @@ def render():
 			if bot.alive is True and bot.map == p1.map.id:
 				win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
 	if p1.display is True: win.putchar(p1.char, p1.pos[0], p1.pos[1], fgcolor=GREEN)
+	sat = p1.getStatus()
+	hel = p1.niceHealth()
 	_x+=1
-	win.putchars('Health', 1, _x, fgcolor=BLUE)
-	win.putchars('%s' % (p1.niceHealth()), 7, _x, fgcolor=RED)
+	win.putchars('Health: [', 1, _x, fgcolor=BLUE)
+	win.putchars('%s' % (hel), 10, _x, fgcolor=RED)
+	win.putchars('] (', len(hel)+10, _x, fgcolor=BLUE)
+	win.putchars('%s' % p1.health[0], len(hel)+13, _x, fgcolor=RED)
+	win.putchars(')', len(hel)+13+len(str(p1.health[0])), _x, fgcolor=BLUE)
+	_x+=1
+	win.putchars('Status: ', 1, _x, fgcolor=BLUE)
+	win.putchars('%s' % (sat[0]), 9, _x, fgcolor=sat[1])
 	if len(MESSAGES) >= 1:
 		for i in MESSAGES:
 			_x+=1
@@ -122,7 +131,7 @@ def render():
 	FRAME += 1
 
 def loop():
-	global updateRender, FRAME, lastFrame
+	global updateRender, FRAME, lastFrame, LASTRENDER
 	while True:
 		if updateRender is True: render()
 		inp.retrieve()
@@ -135,6 +144,10 @@ def loop():
 			if 'x' in inp.value[0]: THREADS.append(thread.start_new_thread(screenLoop, ()))
 			if 'i' in inp.value[0]: inventory()
 			
+		if time.time() - LASTRENDER >= 1:
+			LASTRENDER = time.time()
+			p1.tick()
+
 		if p1.ai != None and p1.ai != []:
 			for i in p1.ai:
 				if i.map == p1.map.id:

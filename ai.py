@@ -26,6 +26,10 @@ class AI():
 			self.lastmove = time.time()
 			self.pos[0] += 1
 			return True
+	
+	def die(self):
+		self.health[0] = 0
+		self.alive = False
 
 class Pos():
 	def __init__(self, x, y):

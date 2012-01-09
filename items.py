@@ -1,3 +1,4 @@
+import random
 class Storage():
 	def __init__(self, name, slots=5, Type=''):
 		self.slots = slots
@@ -43,7 +44,7 @@ class BackPack(Storage):
 		Storage.__init__(self, 'Back Pack', 5, 'inventory')
 
 class Food():
-	def __init__(self, name, health=0, unhealth=0, poison=False, poisonChance=0, poisonTime=60):
+	def __init__(self, name, health=0, unhealth=0, poison=False, poisonChance=0, poisonTime=60, poisonDamage=1):
 		self.name = name
 		self.type = 'food'
 		self.health = health
@@ -51,7 +52,14 @@ class Food():
 		self.poison = poison
 		self.poisonChance = poisonChance
 		self.poisonTime = poisonTime
+		self.poisonDamage = poisonDamage
 		self.alive = True
+
+	def use(self):
+		if self.poison is True and random.randint(1, self.poisonChance) == 1:
+			return (self.health, self.unhealth, True, self.poisonTime, self.poisonDamage)
+		else:
+			return (self.health, self.unhealth, False, 0, 0)
 
 class Weapon():
 	def __init__(self, name, damage=0, damageModifier=0, knockback=0, knockbackModifier=0, effect=None, durability=0, value=5):
@@ -75,6 +83,11 @@ class Apple(Food):
 		self.id = 0
 		Food.__init__(self, 'Apple', 3)
 
+class BadApple(Food):
+	def __init__(self):
+		self.id = 5
+		Food.__init__(self, 'Bad Apple', 3, 0, True, 1, 5, .5)
+
 class WoodSword(Weapon):
 	def __init__(self):
 		self.id = 1
@@ -90,11 +103,11 @@ class GoldPlatedSword(Weapon):
 		self.id = 3
 		Weapon.__init__(self, 'Gold Plated Sword', 10, 0, 0, 0, None, 75, 55)
 
-
 itemz = {
 	0:Apple,
 	1:WoodSword,
 	2:IronSword,
 	3:GoldPlatedSword,
 	4:BackPack,
+	5:BadApple
 }

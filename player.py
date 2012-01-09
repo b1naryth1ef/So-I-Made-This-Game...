@@ -1,4 +1,4 @@
-import reqs, random, items, game
+import reqs, random, items, game, time
 
 class Player():
 	def __init__(self, name, char, pos=[3,3]):
@@ -9,7 +9,7 @@ class Player():
 		self.health = [50,50]
 		self.dead = False
 		self.display = True
-		self.poisoned = (False, 0, 0) #Is poisoned and amount per tick, and duration
+		self.poisoned = [False, 0, 0, 0] #Is poisoned and amount per tick, and duration, and last done
 		self.realpos = lambda: [self.pos[0]-1, self.pos[1]-1]
 		self.inv = items.BackPack()
 		self.map = None
@@ -21,6 +21,20 @@ class Player():
 
 		self.poisonTime = 0
 
+	def getStatus(self):
+		if self.poisoned[0] is True:
+			return ['Poisoned!', game.GREEN]
+		if self.health[0] > 40:
+			return ['Great!', game.BLUE]
+		elif self.health[0] > 30:
+			return ['Good.', game.BLUE]
+		elif self.health[0] > 20:
+			return ['Okay.', game.ORANGE]
+		elif self.health[0] > 10:
+			return ['Injured.', game.ORANGE]
+		elif self.health[0] > 0:
+			return ['Almost Dead.', game.RED]
+
 	def pickup(self, item): return self.inv.addItem(item)
 
 	def newPickup(self, item): 
@@ -28,13 +42,17 @@ class Player():
 		return (i, self.pickup(i))
 	
 	def niceHealth(self):
-		return '[%s%s]' % ('='*(self.health[0]/5), ' '*abs((self.health[0]-self.health[1])/5))
+		return '%s%s' % ('='*(int(round(self.health[0]))/5), ' '*abs((int(round(self.health[0]))-self.health[1])/5))
 
 	def tick(self):
 		if self.poisoned[0] is True:
-			if time.time() - self.poisonTime >= self.poisoned[2]:
-				self.unheal(self.poisoned[1])
-				self.poisonTime = time.time()
+			if time.time() - self.poisonTime <= self.poisoned[2]:
+				if time.time() - self.poisoned[3] > 1:
+					print 'rarr'
+					self.unheal(self.poisoned[1])
+					self.poisoned[3] = time.time()
+			else:
+				self.poisoned = [False, 0, 0, 0] 
 
 		if self.map.hitMap[tuple(self.realpos())][1] == 'PICKUP': #Idk why I put this here. Could just as easily been in the main loop...
 			i = self.map.infoMap[tuple(self.realpos())]['pickup'][0]
@@ -66,7 +84,7 @@ class Player():
 		print 'Deadz!'
 
 	def unheal(self, amount):
-		if self.health[0]-amount < self.health[1]:
+		if self.health[0]-amount < 0:
 			self.die()
 		else:
 			self.health[0]-=amount
@@ -79,12 +97,22 @@ class Player():
 
 	def eatObj(self, obj):
 		if obj.type == 'food':
-			self.heal(obj.health)
-			self.unheal(obj.unhealth)
-			if obj.poison is True and random.randint(obj.poisonChance, 100):
+			dat = obj.use()
+			self.heal(dat[0])
+			self.unheal(dat[1])
+			if dat[2] is True:
 				self.poisoned[0] = True
-				self.poisoned[1] = 1
-				self.poisoned[2] = obj.poisonTime
+				self.poisoned[1] = dat[4]
+				self.poisoned[2] = dat[3]
+				self.poisonTime = time.time()
+			return True
+		return False
+			# self.heal(obj.health)
+			# self.unheal(obj.unhealth)
+			# if obj.poison is True and random.randint(obj.poisonChance, 100):
+			# 	self.poisoned[0] = True
+			# 	self.poisoned[1] = 1
+			# 	self.poisoned[2] = obj.poisonTime
 
 	def moveUp(self): return self.move(y=-1)
 	def moveDown(self): return self.move(y=1)
