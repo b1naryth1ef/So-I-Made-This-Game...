@@ -23,6 +23,7 @@ BACKGROUNDCOLOR = (0, 0, 0)
 FPS = 5
 FRAME = 0
 LASTRENDER = 0
+OLDHASH = None
 
 win = pygcurse.PygcurseWindow(WINWIDTH, WINHEIGHT, fullscreen=False)
 win.autoupdate = False
@@ -35,7 +36,7 @@ p1.levels = {
 	'2': Map(2, level2.nice, level2.info, p1).genHitMap()
 }
 p1.selectMap(1)
-p1.ai = [AI('Joe', p1, color=BLUE, Map=1).spawn()]
+p1.ai = []#[AI('Joe', p1, color=BLUE, Map=1).spawn()]
 p1.map.pathRender()
 p1.inv[1] = BadApple()
 
@@ -113,7 +114,7 @@ def render():
 	win.putchars('Health: [', 1, _x, fgcolor=BLUE)
 	win.putchars('%s' % (hel), 10, _x, fgcolor=RED)
 	win.putchars('] (', len(hel)+10, _x, fgcolor=BLUE)
-	win.putchars('%s' % p1.health[0], len(hel)+13, _x, fgcolor=RED)
+	win.putchars('%s' % p1.health[0], len(hel)+13, _x, fgcolor=sat[1])
 	win.putchars(')', len(hel)+13+len(str(p1.health[0])), _x, fgcolor=BLUE)
 	_x+=1
 	win.putchars('Status: ', 1, _x, fgcolor=BLUE)
@@ -131,7 +132,7 @@ def render():
 	FRAME += 1
 
 def loop():
-	global updateRender, FRAME, lastFrame, LASTRENDER
+	global updateRender, FRAME, lastFrame, LASTRENDER, OLDHASH
 	while True:
 		if updateRender is True: render()
 		inp.retrieve()
@@ -141,12 +142,16 @@ def loop():
 			if 'a' in inp.value[0] and p1.moveLeft() is True: updateRender = True
 			if 's' in inp.value[0] and p1.moveDown() is True: updateRender = True
 			if 'd' in inp.value[0] and p1.moveRight() is True: updateRender = True
-			if 'x' in inp.value[0]: THREADS.append(thread.start_new_thread(screenLoop, ()))
+			if 'x' in inp.value[0]: p1.unheal(1) #various tests go here
 			if 'i' in inp.value[0]: inventory()
 			
 		if time.time() - LASTRENDER >= 1:
 			LASTRENDER = time.time()
 			p1.tick()
+
+		if p1.hash() != OLDHASH: #Check to see if we should update the render
+			OLDHASH = p1.hash()
+			updateRender = True
 
 		if p1.ai != None and p1.ai != []:
 			for i in p1.ai:
@@ -155,6 +160,6 @@ def loop():
 						updateRender = True
 								
 		time.sleep(.01)
-render()
 init()
+render()
 loop()

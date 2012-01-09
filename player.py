@@ -22,18 +22,12 @@ class Player():
 		self.poisonTime = 0
 
 	def getStatus(self):
-		if self.poisoned[0] is True:
-			return ['Poisoned!', game.GREEN]
-		if self.health[0] > 40:
-			return ['Great!', game.BLUE]
-		elif self.health[0] > 30:
-			return ['Good.', game.BLUE]
-		elif self.health[0] > 20:
-			return ['Okay.', game.ORANGE]
-		elif self.health[0] > 10:
-			return ['Injured.', game.ORANGE]
-		elif self.health[0] > 0:
-			return ['Almost Dead.', game.RED]
+		if self.poisoned[0] is True: return ['Poisoned!', game.GREEN]
+		if self.health[0] > 40: return ['Great!', game.ORANGE]
+		elif self.health[0] > 30: return ['Good.', game.ORANGE]
+		elif self.health[0] > 20: return ['Okay.', game.ORANGE]
+		elif self.health[0] > 10: return ['Injured.', game.RED]
+		elif self.health[0] > 0: return ['Almost Dead.', game.RED]
 
 	def pickup(self, item): return self.inv.addItem(item)
 
@@ -52,7 +46,7 @@ class Player():
 					self.unheal(self.poisoned[1])
 					self.poisoned[3] = time.time()
 			else:
-				self.poisoned = [False, 0, 0, 0] 
+				self.poisoned = [False, 0, 0, 0] #Reset poison
 
 		if self.map.hitMap[tuple(self.realpos())][1] == 'PICKUP': #Idk why I put this here. Could just as easily been in the main loop...
 			i = self.map.infoMap[tuple(self.realpos())]['pickup'][0]
@@ -68,8 +62,7 @@ class Player():
 				self.map.updateChar((tuple(self.pos)), ' ')
 				self.map.hitMap[tuple(self.realpos())] = (True, 'AIR')
 		
-		if self.health[0] <= 0:
-			self.die()
+		if self.health[0] <= 0 and self.dead is False: self.die()
 
 	def niceInv(self):
 		li = {}
@@ -79,21 +72,16 @@ class Player():
 		return li
 
 	def die(self):
-		self.health[0] = 0
+		self.health[0] = -1
 		self.dead = True
-		print 'Deadz!'
 
 	def unheal(self, amount):
-		if self.health[0]-amount < 0:
-			self.die()
-		else:
-			self.health[0]-=amount
+		if self.health[0]-amount < 0: self.die()
+		else: self.health[0]-=amount
 
 	def heal(self, amount):
-		if self.health[0]+amount > self.health[1]:
-			self.health[0] = self.health[1]
-		else:
-			self.health[0]+=amount
+		if self.health[0]+amount > self.health[1]: self.health[0] = self.health[1]
+		else: self.health[0]+=amount
 
 	def eatObj(self, obj):
 		if obj.type == 'food':
@@ -107,12 +95,6 @@ class Player():
 				self.poisonTime = time.time()
 			return True
 		return False
-			# self.heal(obj.health)
-			# self.unheal(obj.unhealth)
-			# if obj.poison is True and random.randint(obj.poisonChance, 100):
-			# 	self.poisoned[0] = True
-			# 	self.poisoned[1] = 1
-			# 	self.poisoned[2] = obj.poisonTime
 
 	def moveUp(self): return self.move(y=-1)
 	def moveDown(self): return self.move(y=1)
@@ -149,3 +131,5 @@ class Player():
 			return True
 		else:
 			return False
+
+	def hash(self): return (self.health[0], self.pos, self.inv)
