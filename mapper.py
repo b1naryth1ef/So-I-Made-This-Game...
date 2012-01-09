@@ -47,34 +47,6 @@ class Map():
 
 	def modifyChar(self, pos, char):
 		self.modify[tuple(pos)] = char
-
-	def render(self):
-		from colorama import init
-		init()
-		_y = 1
-		for y in self.niceMap:
-			print " "
-			_x = 0
-			for x in y:
-			 	if [_x,_y-1] == self.player.pos: print self.player.char,
-			 	else: print x,
-			 	_x += 1
-			_y += 1
-
-	def newRender(self):
-		lines = []
-		for line in self.niceMap:
-			lines.append(line)
-		_x = 0
-		line2 = []
-		for char in lines[self.player.pos[1]]:
-			_x += 1
-			if _x == self.player.pos[0]:
-				line2.append(self.player.char)
-			else:
-				line2.append(char)
-		lines[self.player.pos[1]] = ''.join(line2)
-		return lines
 	
 	def rend(self, lines):
 		linz = []

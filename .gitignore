@@ -5,3 +5,5 @@ xpygame/
 test/
 dist/
 build/
+test.py
+setup.py

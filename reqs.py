@@ -30,7 +30,6 @@ def ask(question):
 		sdisplay(question + ": " + string.join(current_string,""))
 	return string.join(current_string,"")
 
-
 def selectionScreen(sel, header, hcolor=(255,0,0), footer='', fcolor=(255,0,0), removeable=False, niceremove=True):
 	global win, p1, inp, FRAME, RED, BLUE, BLACK
 	selected = 1

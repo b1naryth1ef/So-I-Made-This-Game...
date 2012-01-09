@@ -42,7 +42,6 @@ class BackPack(Storage):
 		self.id = 4
 		Storage.__init__(self, 'Back Pack', 5, 'inventory')
 
-
 class Food():
 	def __init__(self, name, health=0, unhealth=0, poison=False, poisonChance=0, poisonTime=60):
 		self.name = name

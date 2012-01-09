@@ -23,11 +23,6 @@ BACKGROUNDCOLOR = (0, 0, 0)
 FPS = 5
 FRAME = 0
 
-moveUp = False
-moveDown = False
-moveRight = False
-moveLeft = False
-
 win = pygcurse.PygcurseWindow(WINWIDTH, WINHEIGHT, fullscreen=False)
 win.autoupdate = False
 pygame.display.set_caption('So I made this game...')
@@ -42,7 +37,6 @@ p1.selectMap(1)
 p1.ai = [AI('Joe', p1, color=BLUE, Map=1).spawn()]
 p1.map.pathRender()
 p1.inv[1] = Apple()
-updateRender = True #Update our Screen once
 
 win.fill(bgcolor=BLACK)
 win.putchars('Teh Game', 20, 3, fgcolor=WHITE)
@@ -57,7 +51,7 @@ def screenLoop():
 	global updateRender
 	#p1.map.updateChar((10,10), "8") #This physically changes the map... Not really safe...
 	p1.map.modifyChar((10,10), "8") #This puts a place holder onto the map. Much safer...
-	updateRender = True	
+	render()
  
 def inventory():
 	li = p1.niceInv()
@@ -99,7 +93,7 @@ def init():
 def render():
 	global updateRender, FRAME
 	_x = 0
-	r = []
+	r = False
 	p1.tick()
 	updateRender = False
 	render = p1.map.newNewRender()
@@ -107,30 +101,30 @@ def render():
 	for line in render:
 		_x+=1
 		win.putchars(line, 1, _x, fgcolor=RED)
-	for bot in p1.ai:
-		if bot.alive is True and bot.map == p1.map.id:
-			win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
+	if len(p1.ai) >=1:
+		for bot in p1.ai:
+			if bot.alive is True and bot.map == p1.map.id:
+				win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
 	if p1.display is True: win.putchar(p1.char, p1.pos[0], p1.pos[1], fgcolor=GREEN)
 	_x+=1
 	win.putchars('Health', 1, _x, fgcolor=BLUE)
 	win.putchars('%s' % (p1.niceHealth()), 7, _x, fgcolor=RED)
-	for i in MESSAGES:
-		_x+=1
-		r = True
-		win.putchars(i[0], 1, _x, fgcolor=i[1])
-		win.putchars('[enter]', len(i[0])+2, _x, fgcolor=ORANGE)
-		MESSAGES.remove(i)
-	win.putchars('Pos: %s | Frame: %s' % (p1.pos, FRAME), 1, _x+2, fgcolor=ORANGE)
+	if len(MESSAGES) >= 1:
+		for i in MESSAGES:
+			_x+=1
+			r = True
+			win.putchars(i[0], 1, _x, fgcolor=i[1])
+			win.putchars('[enter]', len(i[0])+2, _x, fgcolor=ORANGE)
+			MESSAGES.remove(i)
+	win.putchars('Pos: %s | Frame: %s' % (p1.pos, FRAME), 1, _x+1, fgcolor=ORANGE)
 	win.update()
 	if r is True: inp.waitFor('enter', 1)
 	FRAME += 1
 
 def loop():
-	global updateRender, FRAME
-	global moveUp, moveDown, moveRight, moveLeft
+	global updateRender, FRAME, lastFrame
 	while True:
-		if updateRender is True:
-			render()
+		if updateRender is True: render()
 		inp.retrieve()
 		if inp.value != ([], []):
 			if 'q' in inp.value[0]: sys.exit()
@@ -148,5 +142,6 @@ def loop():
 						updateRender = True
 								
 		time.sleep(.01)
+render()
 init()
 loop()
