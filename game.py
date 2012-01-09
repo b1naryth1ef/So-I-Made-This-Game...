@@ -1,7 +1,7 @@
 import pygame, random, sys, os, time, pygcurse, thread
 import inputr, reqs
 from pygame.locals import *
-from levels import level1, level2
+from levels import level1, level2, level0
 from mapper import Map
 from player import Player
 from ai import AI
@@ -32,6 +32,7 @@ inp = inputr.KeyboardInput()
 
 p1 = Player('Joe', '@')
 p1.levels = {
+	'0': Map(0, level0.nice, level0.info, p1).genHitMap(),
 	'1': Map(1, level1.nice, level1.info, p1).genHitMap(),
 	'2': Map(2, level2.nice, level2.info, p1).genHitMap()
 }
@@ -112,13 +113,14 @@ def render():
 	hel = p1.niceHealth()
 	_x+=1
 	win.putchars('Health: [', 1, _x, fgcolor=BLUE)
-	win.putchars('%s' % (hel), 10, _x, fgcolor=RED)
+	win.putchars('%s' % (hel), 10, _x, fgcolor=sat[1])
 	win.putchars('] (', len(hel)+10, _x, fgcolor=BLUE)
 	win.putchars('%s' % p1.health[0], len(hel)+13, _x, fgcolor=sat[1])
 	win.putchars(')', len(hel)+13+len(str(p1.health[0])), _x, fgcolor=BLUE)
-	_x+=1
-	win.putchars('Status: ', 1, _x, fgcolor=BLUE)
-	win.putchars('%s' % (sat[0]), 9, _x, fgcolor=sat[1])
+	if p1.health[0] < 20 or p1.poisoned[0] is True:
+		_x+=1
+		win.putchars('Status: ', 1, _x, fgcolor=BLUE)
+		win.putchars('%s' % (sat[0]), 9, _x, fgcolor=sat[1])
 	if len(MESSAGES) >= 1:
 		for i in MESSAGES:
 			_x+=1
