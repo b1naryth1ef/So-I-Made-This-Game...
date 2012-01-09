@@ -65,6 +65,7 @@ def inventory():
 	if choice[0] != None and choice[1] != None:
 		if p1.inv[choice[0]].type == 'food':
 			p1.eatObj(p1.inv[choice[0]])
+	render()
 
 def findSaves(home=os.getcwd()):
     """Find save files, and return a list of them"""
@@ -94,39 +95,42 @@ def init():
 			nicelist[y] = i.split('/')[-1:][0]
 		nicelist[y+1] = '[New]'
 		print reqs.selectionScreen(nicelist, 'Save Files:', ORANGE, '[Enter] to select | [R] to dump | [Q] to exit', ORANGE, True)
-
 	
+def render():
+	global updateRender, FRAME
+	_x = 0
+	r = []
+	p1.tick()
+	updateRender = False
+	render = p1.map.newNewRender()
+	win.fill(bgcolor=BLACK)
+	for line in render:
+		_x+=1
+		win.putchars(line, 1, _x, fgcolor=RED)
+	for bot in p1.ai:
+		if bot.alive is True and bot.map == p1.map.id:
+			win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
+	if p1.display is True: win.putchar(p1.char, p1.pos[0], p1.pos[1], fgcolor=GREEN)
+	_x+=1
+	win.putchars('Health', 1, _x, fgcolor=BLUE)
+	win.putchars('%s' % (p1.niceHealth()), 7, _x, fgcolor=RED)
+	for i in MESSAGES:
+		_x+=1
+		r = True
+		win.putchars(i[0], 1, _x, fgcolor=i[1])
+		win.putchars('[enter]', len(i[0])+2, _x, fgcolor=ORANGE)
+		MESSAGES.remove(i)
+	win.putchars('Pos: %s | Frame: %s' % (p1.pos, FRAME), 1, _x+2, fgcolor=ORANGE)
+	win.update()
+	if r is True: inp.waitFor('enter', 1)
+	FRAME += 1
+
 def loop():
 	global updateRender, FRAME
 	global moveUp, moveDown, moveRight, moveLeft
 	while True:
 		if updateRender is True:
-			_x = 0
-			r = []
-			p1.tick()
-			updateRender = False
-			render = p1.map.newNewRender()
-			win.fill(bgcolor=BLACK)
-			for line in render:
-				_x+=1
-				win.putchars(line, 1, _x, fgcolor=RED)
-			for bot in p1.ai:
-				if bot.alive is True and bot.map == p1.map.id:
-					win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
-			if p1.display is True: win.putchar(p1.char, p1.pos[0], p1.pos[1], fgcolor=GREEN)
-			_x+=1
-			win.putchars('Health', 1, _x, fgcolor=BLUE)
-			win.putchars('%s' % (p1.niceHealth()), 7, _x, fgcolor=RED)
-			for i in MESSAGES:
-				_x+=1
-				r = True
-				win.putchars(i[0], 1, _x, fgcolor=i[1])
-				win.putchars('[enter]', len(i[0])+2, _x, fgcolor=ORANGE)
-				MESSAGES.remove(i)
-			win.putchars('Pos: %s | Frame: %s' % (p1.pos, FRAME), 1, _x+2, fgcolor=ORANGE)
-			win.update()
-			if r is True: inp.waitFor('enter', 1)
-			FRAME += 1
+			render()
 		inp.retrieve()
 		if inp.value != ([], []):
 			if 'q' in inp.value[0]: sys.exit()
