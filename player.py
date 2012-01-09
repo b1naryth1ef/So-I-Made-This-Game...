@@ -36,7 +36,9 @@ class Player():
 		return (i, self.pickup(i))
 	
 	def niceHealth(self):
-		return '%s%s' % ('='*(int(round(self.health[0]))/5), ' '*abs((int(round(self.health[0]))-self.health[1])/5))
+		if self.health[0] > 5:
+			return '%s%s' % ('='*(int(round(self.health[0]))/5), ' '*abs((int(round(self.health[0]))-self.health[1])/5))
+		else: return '=       '
 
 	def tick(self):
 		if self.poisoned[0] is True:
