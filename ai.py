@@ -1,7 +1,8 @@
 import time
+from modules import astar
 
 class AI():
-	def __init__(self, name, player, attack=1, health=5, Map=0, char='+', speed=1, color=(255,255,255)): 
+	def __init__(self, name, player, attack=1, health=5, Map=0, char='+', speed=.5, color=(255,255,255)): 
 		self.name = name
 		self.player = player
 		self.attack = attack
@@ -10,22 +11,31 @@ class AI():
 		self.char = char
 		self.color = color
 		self.speed = speed
+		self.goal = 'player' #player/entity
+		self.pathFindy = astar.AStar()
 
 		self.alive = False
-		self.pos = [10,10]
+		self.pos = [10, 10]
 
 		self.lastmove = time.time()
 	
-	def spawn(self, pos=[10,10]):
+	def spawn(self, pos=[11,11]):
 		self.alive = True
 		self.pos = pos
 		return self
 
+	def attackPlayer(self): print 'Would attack player'
+	def attackEntity(self): pass
+
 	def move(self):
 		if time.time() - self.lastmove >= self.speed:
-			self.lastmove = time.time()
-			self.pos[0] += 1
-			return True
+			if self.goal is 'player':
+				self.pathFindy.findPath(tuple(self.player.pos), tuple(self.pos), self.player.levels[str(self.map)].hitMap) 
+				f = self.pathFindy.path
+				if len(f) > 1: self.pos = list(f[1])
+				else: self.attackPlayer()
+				self.lastmove = time.time()
+				return True
 	
 	def die(self):
 		self.health[0] = 0

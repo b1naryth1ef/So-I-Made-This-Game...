@@ -31,7 +31,7 @@ p1.levels = {
 	'2': Map(2, level2.nice, level2.info, p1).genHitMap()
 }
 p1.selectMap(0)
-p1.ai = []#[AI('Joe', p1, color=BLUE, Map=1).spawn()]
+p1.ai = [AI('Joe', p1, color=BLUE, Map=0).spawn()]
 p1.map.pathRender()
 p1.inv[1] = BadApple()
 
