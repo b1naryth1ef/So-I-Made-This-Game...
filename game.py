@@ -6,13 +6,7 @@ from mapper import Map
 from player import Player
 from ai import AI
 from items import Apple, BadApple
-
-GREEN = (0, 255, 0)
-BLACK = (0,0,0)
-WHITE = (255,255,255)
-RED = (255,0,0)
-ORANGE = (255,140,0)
-BLUE = (0,0,255)
+from colors import GREEN, BLACK, WHITE, RED, ORANGE, BLUE, health
 
 THREADS = []
 MESSAGES = []
@@ -36,7 +30,7 @@ p1.levels = {
 	'1': Map(1, level1.nice, level1.info, p1).genHitMap(),
 	'2': Map(2, level2.nice, level2.info, p1).genHitMap()
 }
-p1.selectMap(1)
+p1.selectMap(0)
 p1.ai = []#[AI('Joe', p1, color=BLUE, Map=1).spawn()]
 p1.map.pathRender()
 p1.inv[1] = BadApple()
@@ -101,9 +95,13 @@ def render():
 	updateRender = False
 	render = p1.map.newNewRender()
 	win.fill(bgcolor=BLACK)
-	for line in render:
+	for line in render: #Render the main screen
 		_x+=1
 		win.putchars(line, 1, _x, fgcolor=RED)
+	for line in p1.map.colorModify.values(): #Render any itmes in colorModify
+		for item in line:
+			char = p1.map.niceMap[item[1][1]-1][item[1][0]-1]
+			win.putchar(char, item[1][0], item[1][1], fgcolor=item[0])
 	if len(p1.ai) >=1:
 		for bot in p1.ai:
 			if bot.alive is True and bot.map == p1.map.id:

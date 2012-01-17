@@ -1,4 +1,5 @@
 import reqs, random, items, game, time
+from colors import health
 
 class Player():
 	def __init__(self, name, char, pos=[3,3]):
@@ -22,12 +23,12 @@ class Player():
 		self.poisonTime = 0
 
 	def getStatus(self):
-		if self.poisoned[0] is True: return ['Poisoned!', game.GREEN]
-		if self.health[0] > 40: return ['Great!', game.ORANGE]
-		elif self.health[0] > 30: return ['Good.', game.ORANGE]
-		elif self.health[0] > 20: return ['Okay.', game.ORANGE]
-		elif self.health[0] > 10: return ['Injured.', game.RED]
-		elif self.health[0] > 0: return ['Almost Dead.', game.RED]
+		if self.poisoned[0] is True: return ['Poisoned!', health[1]]
+		if self.health[0] > 40: return ['Great!', health[2]]
+		elif self.health[0] > 30: return ['Good.', health[3]]
+		elif self.health[0] > 20: return ['Okay.', health[4]]
+		elif self.health[0] > 10: return ['Injured.', health[5]]
+		elif self.health[0] > 0: return ['Almost Dead.', health[6]]
 
 	def pickup(self, item): return self.inv.addItem(item)
 
@@ -85,7 +86,7 @@ class Player():
 		if self.health[0]+amount > self.health[1]: self.health[0] = self.health[1]
 		else: self.health[0]+=amount
 
-	def eatObj(self, obj):
+	def eatObj(self, obj): #Action binded to eating
 		if obj.type == 'food':
 			dat = obj.use()
 			self.heal(dat[0])
@@ -97,6 +98,8 @@ class Player():
 				self.poisonTime = time.time()
 			return True
 		return False
+
+	def useObj(self, obj): pass
 
 	def moveUp(self): return self.move(y=-1)
 	def moveDown(self): return self.move(y=1)
@@ -113,7 +116,7 @@ class Player():
 				ret[tuple(i.pos)] = i
 			return ret
 
-	def moveBack(self):
+	def moveBack(self): #Could just do x,y = y,x but w/e
 		self.pos, self.lastPos = reqs.trade(self.pos, self.lastPos)
 
 	def move(self, x=0, y=0):

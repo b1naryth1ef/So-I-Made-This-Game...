@@ -6,6 +6,7 @@ class Map():
 		self.player = player
 
 		self.modify = {}
+		self.colorModify = {}
 	
 	def genHitMap(self):
 		self.hitMap = {}
@@ -24,6 +25,14 @@ class Map():
 						self.startPos = poss
 				else:
 					self.hitMap[poss] = self.infoMap[poss]['hitinfo']
+					if 'color' in self.infoMap[poss].keys():
+						if _y in self.colorModify.keys():
+							if self.colorModify[_y] == None:
+								self.colorModify[_y] = []
+							self.colorModify[_y].append((self.infoMap[poss]['color'], tuple(poss)))
+						else:
+							self.colorModify[_y] = [(self.infoMap[poss]['color'], tuple(poss))]
+	
  				_x += 1
 			_y += 1
 		return self

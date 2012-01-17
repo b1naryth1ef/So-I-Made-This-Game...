@@ -1,0 +1,19 @@
+GREEN = (0, 255, 0)
+DARK_GREEN = (0, 139, 0)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+DARK_RED = (165, 42, 42)
+ORANGE = (255, 140, 0)
+BLUE = (0, 0, 255)
+DARK_ORANGE = (255, 140, 0)
+RED_ORANGE = (255, 36,0)
+
+health = {
+	1: GREEN, #POISON
+	2: DARK_GREEN,
+	3: DARK_ORANGE,
+	4: DARK_RED,
+	5: RED_ORANGE,
+	6: RED
+}
