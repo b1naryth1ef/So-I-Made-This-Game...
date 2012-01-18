@@ -24,7 +24,11 @@ class AI():
 		self.pos = pos
 		return self
 
-	def attackPlayer(self): print 'Would attack player'
+	def attackPlayer(self): 
+		print 'attacked'
+		self.player.attackMode(self)
+		self.pos = [2,2]
+		self.map = 0
 	def attackEntity(self): pass
 
 	def move(self):
@@ -32,9 +36,16 @@ class AI():
 			if self.goal is 'player':
 				self.pathFindy.findPath(tuple(self.player.pos), tuple(self.pos), self.player.levels[str(self.map)].hitMap) 
 				f = self.pathFindy.path
-				if len(f) > 1: self.pos = list(f[1])
-				else: self.attackPlayer()
+				if len(f) > 2: 
+					self.pos = list(f[1])
+				else:
+					if self.player.mode is 1:
+						self.attackPlayer()
+					elif self.player.mode is 0:
+						#self.player.unheal(self.attack)
+						self.player.attacked(self.attack)
 				self.lastmove = time.time()
+
 				return True
 	
 	def die(self):

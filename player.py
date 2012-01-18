@@ -1,5 +1,5 @@
 import reqs, random, items, game, time
-from colors import health
+from colors import health, RED
 
 class Player():
 	def __init__(self, name, char, pos=[3,3]):
@@ -16,11 +16,13 @@ class Player():
 		self.map = None
 		self.levels = None
 		self.ai = None
+		self.mode = 1
 
 		self.movx = [0,0]
 		self.movy = [0,0]
 
 		self.poisonTime = 0
+		self.lastModified = []
 
 	def getStatus(self):
 		if self.poisoned[0] is True: return ['Poisoned!', health[1]]
@@ -31,6 +33,25 @@ class Player():
 		elif self.health[0] > 0: return ['Almost Dead.', health[6]]
 
 	def pickup(self, item): return self.inv.addItem(item)
+
+	def attacked(self, amount): #@DEV Fix this shit. It's broken..
+		x, y = self.pos
+		am = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+
+		for pos in self.lastModified:
+			self.map.unmodifyChar(pos)
+			self.map.uncolorChar(pos)
+
+		self.lastModified = am
+
+		for pos in am:
+			self.map.modifyChar(pos, '*')
+			self.map.colorChar(pos, RED)
+
+	def attackMode(self, bot):
+		self.selectMap(0)
+		self.pos = self.map.startPos
+		self.mode = 0 #Attack mode
 
 	def newPickup(self, item): 
 		i = items.itemz[item]()
@@ -66,6 +87,11 @@ class Player():
 				self.map.hitMap[tuple(self.realpos())] = (True, 'AIR')
 		
 		if self.health[0] <= 0 and self.dead is False: self.die()
+
+		for i in self.ai:
+			if i.alive is True and i.map == self.map.id and self.pos == i.pos:
+				i.attackPlayer()
+
 
 	def niceInv(self):
 		li = {}

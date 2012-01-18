@@ -1,5 +1,5 @@
-- Need to track what keys are down/up
+- Add animations
+- Fix color chars (Few errors we escape...)
+- Continue work on combat
 - Fix font
-- Add colors
-- Maybe make text entities individuals?
 - Garbage collection!

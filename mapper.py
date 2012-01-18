@@ -22,7 +22,8 @@ class Map():
 					elif pos == 'P': 
 						self.niceMap[_y] = self.niceMap[_y].replace('P', ' ')
 						self.hitMap[poss] = (True, 'AIR')
-						self.startPos = poss
+						self.startPos = [poss[0]+1, poss[1]+1]
+						print poss
 				else:
 					self.hitMap[poss] = self.infoMap[poss]['hitinfo']
 					if 'color' in self.infoMap[poss].keys():
@@ -32,7 +33,6 @@ class Map():
 							self.colorModify[_y].append((self.infoMap[poss]['color'], tuple(poss)))
 						else:
 							self.colorModify[_y] = [(self.infoMap[poss]['color'], tuple(poss))]
-	
  				_x += 1
 			_y += 1
 		return self
@@ -56,6 +56,20 @@ class Map():
 
 	def modifyChar(self, pos, char):
 		self.modify[tuple(pos)] = char
+
+	def unmodifyChar(self, pos):
+		if tuple(pos) in self.modify.keys():
+			del self.modify[tuple(pos)]
+
+	def colorChar(self, pos, color):
+		try:
+			if len(self.colorModify) >= pos[1]:
+				if self.colorModify[pos[1]] != None: self.colorModify[pos[1]].append((color, pos))
+				else: self.colorModify[pos[1]] = [(color, pos)]
+		except: pass
+
+	def uncolorChar(self, pos):
+		self.colorModify[pos[1]] = []
 	
 	def rend(self, lines):
 		linz = []
