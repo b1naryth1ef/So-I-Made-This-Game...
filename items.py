@@ -1,4 +1,21 @@
 import random
+
+class Entity():
+	def __init__(self, Type, name, Map):
+		self.type = Type
+		self.name = name
+
+		self.alive = False
+		self.char = '+'
+
+		self.map = Map
+
+	def spawn(self): pass
+
+	def despawn(self): pass
+
+	def action(self): pass
+
 class Storage():
 	def __init__(self, name, slots=5, Type=''):
 		self.slots = slots
@@ -107,6 +124,19 @@ class GoldPlatedSword(Weapon):
 	def __init__(self):
 		self.id = 3
 		Weapon.__init__(self, 'Gold Plated Sword', 10, 0, 0, 0, None, 75, 55)
+
+class Projectile(Entity):
+	def __init__(self, name):
+		Entity.__init__(self, name, 'Projectile')
+
+class Arrow(Projectile):
+	def __init__(self):
+		self.id = 0
+		Projectile.__init__(self, 'Arrow', )
+
+entityz = {
+	0:Arrow
+}
 
 itemz = {
 	0:Apple,

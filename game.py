@@ -35,7 +35,6 @@ p1.levels = {
 }
 p1.selectMap(1)
 p1.ai = [AI('Joe', p1, color=BLUE, Map=1).spawn()]
-p1.map.pathRender()
 p1.inv[1] = BadApple()
 p1.inv[2] = WoodSword()
 
@@ -86,6 +85,11 @@ def init():
 		print reqs.selectionScreen(nicelist, 'Save Files:', ORANGE, '[Enter] to select | [R] to dump | [Q] to exit', ORANGE, True)
 
 rendery = p1.map.newNewRender()	
+
+def getNewRender():
+	global rendery
+	rendery = p1.map.newNewRender()	
+
 def render():
 	global updateRender, FRAME, MODIFY, GETNEWREND, rendery
 	if GETNEWREND is True:
@@ -144,7 +148,7 @@ def loop():
 			if 'a' in inp.value[0] and p1.moveLeft() is True: updateRender = True
 			if 's' in inp.value[0] and p1.moveDown() is True: updateRender = True
 			if 'd' in inp.value[0] and p1.moveRight() is True: updateRender = True
-			if 'x' in inp.value[0]: p1.useWeapon() #various tests go here
+			if 'x' in inp.value[0]: p1.useWeapon() #@NOTE this bind will change...
 			if 'i' in inp.value[0]: p1.displayInventory()
 			
 		if time.time() - LASTRENDER >= 1:

@@ -1,7 +1,6 @@
-
 class Map():
 	def __init__(self, ID, niceMap, infoMap, player=None):
-		from game import GETNEWREND
+		#from game import GETNEWREND
 		self.id = ID
 		self.niceMap = niceMap
 		self.infoMap = infoMap
@@ -9,6 +8,14 @@ class Map():
 
 		self.modify = {}
 		self.colorModify = {}
+
+		self.imported = False
+
+	def getImports(self):
+		if self.imported is False:
+			global getNewRender
+			from game import getNewRender
+			self.imported = True
 	
 	def genHitMap(self):
 		self.hitMap = {}
@@ -40,31 +47,43 @@ class Map():
 		return self
 
 	def updateChar(self, pos, char, hit=None):
+		self.getImports()
+		global getNewRender
+		#from game import getNewRender
 		pos = tuple(pos)
 		oldline = self.niceMap[pos[1]-1]
 		newline = []
 		_x = 0
+		#print pos[0]
+		#print oldline[pos[0]-1]
 		for i in oldline:
 			_x += 1
 			if _x == pos[0]:
-				newline.append(char)
+				newline.append(char) #CHAR
 			else:
 				newline.append(i)
+		#print newline
 		self.niceMap[pos[1]-1] = ''.join(newline)
+		#print self.niceMap[pos[1]-1]
 
 		if hit != None: #Update hitmap (should be tuplez)
 			self.hitMap[(pos[1]-1, pos[0]-1)] = hit
-			#print self.hitMap[(pos[1]-1, pos[0]-1)]
-		GETNEWREND = True
+			#print self.hitMap[(pos[1]-1, pos[0]-1)]	
+		#GETNEWREND = True
+		getNewRender()
 
 	def modifyChar(self, pos, char):
+		self.getImports()
+		global getNewRender
 		self.modify[tuple(pos)] = char
-		GETNEWREND = True
+		getNewRender()
 
 	def unmodifyChar(self, pos):
+		self.getImports()
+		global getNewRender
 		if tuple(pos) in self.modify.keys():
 			del self.modify[tuple(pos)]
-		GETNEWREND = True
+		getNewRender()
 
 	def colorChar(self, pos, color):
 		try:
@@ -91,6 +110,7 @@ class Map():
 		return linz
 
 	def newNewRender(self):
+		#print 'RENDERING BASE MAP'
 		lines = {}
 		_y = 0
 		for line in self.niceMap:
