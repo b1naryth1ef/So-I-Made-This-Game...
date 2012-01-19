@@ -1,5 +1,7 @@
+
 class Map():
 	def __init__(self, ID, niceMap, infoMap, player=None):
+		from game import GETNEWREND
 		self.id = ID
 		self.niceMap = niceMap
 		self.infoMap = infoMap
@@ -53,13 +55,16 @@ class Map():
 		if hit != None: #Update hitmap (should be tuplez)
 			self.hitMap[(pos[1]-1, pos[0]-1)] = hit
 			#print self.hitMap[(pos[1]-1, pos[0]-1)]
+		GETNEWREND = True
 
 	def modifyChar(self, pos, char):
 		self.modify[tuple(pos)] = char
+		GETNEWREND = True
 
 	def unmodifyChar(self, pos):
 		if tuple(pos) in self.modify.keys():
 			del self.modify[tuple(pos)]
+		GETNEWREND = True
 
 	def colorChar(self, pos, color):
 		try:
