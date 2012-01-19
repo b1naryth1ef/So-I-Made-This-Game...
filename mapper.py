@@ -68,18 +68,20 @@ class Map():
 				else: self.colorModify[pos[1]] = [(color, pos)]
 		except: pass
 
-	def uncolorChar(self, pos):
-		self.colorModify[pos[1]] = []
+	def uncolorChar(self, pos): #@DEV Possible we should add better options for this? So we can color a colored char but not uncolor it when its uncolored? 
+		try:
+			self.colorModify[pos[1]] = []
+		except: pass
 	
 	def rend(self, lines):
 		linz = []
 		for y in lines:
 			mlin = []
 			for x in lines[y]:
-				if [x,y] == self.player.pos:
-					mlin.append(self.player.char)
-				else:
-					mlin.append(lines[y][x])
+				# if [x,y] == self.player.pos:
+				# 	mlin.append(self.player.char)
+				# else:
+				mlin.append(lines[y][x])
 			linz.append(''.join(mlin))
 		return linz
 
@@ -92,10 +94,10 @@ class Map():
 			_x = 0
 			for char in line:
 				_x += 1
-				#p = self.player.aiPos([_x, _y])
-				if [_x,_y] == self.player.pos: lines[_y][_x] = self.player.char
-				#elif (_x,_y) in p.keys(): lines[_y][_x] = p[(_x,_y)].char
-				elif (_x,_y) in self.modify.keys(): lines[_y][_x] = self.modify[(_x,_y)]
+				#p = self.player.aiPos([_x, _y]) @DEV WHAT THE FUCK DOES THIS EVEN DO? 
+				#if [_x,_y] == self.player.pos: lines[_y][_x] = self.player.char
+				#elif (_x,_y) in p.keys(): lines[_y][_x] = p[(_x,_y)].char @DEV same here
+				if (_x,_y) in self.modify.keys(): lines[_y][_x] = self.modify[(_x,_y)]
 				else: lines[_y][_x] = char
 		return self.rend(lines)
 

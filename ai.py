@@ -2,7 +2,7 @@ import time
 from modules import astar
 
 class AI():
-	def __init__(self, name, player, attack=1, health=5, Map=0, char='+', speed=.5, color=(255,255,255)): 
+	def __init__(self, name, player, attack=1, health=5, Map=0, char='+', speed=.5, attackSpeed=1,color=(255,255,255)): 
 		self.name = name
 		self.player = player
 		self.attack = attack
@@ -11,6 +11,7 @@ class AI():
 		self.char = char
 		self.color = color
 		self.speed = speed
+		self.attackSpeed = attackSpeed
 		self.goal = 'player' #player/entity
 		self.pathFindy = astar.AStar()
 
@@ -18,6 +19,7 @@ class AI():
 		self.pos = [10, 10]
 
 		self.lastmove = time.time()
+		self.lastattack = time.time()
 	
 	def spawn(self, pos=[11,11]):
 		self.alive = True
@@ -29,6 +31,7 @@ class AI():
 		self.player.attackMode(self)
 		self.pos = [2,2]
 		self.map = 0
+
 	def attackEntity(self): pass
 
 	def move(self):
@@ -38,15 +41,17 @@ class AI():
 				f = self.pathFindy.path
 				if len(f) > 2: 
 					self.pos = list(f[1])
-				else:
-					if self.player.mode is 1:
-						self.attackPlayer()
-					elif self.player.mode is 0:
-						#self.player.unheal(self.attack)
-						self.player.attacked(self.attack)
+					return True
+				else: #@NOTE We dont actually move anywhere here, so make why re-render?
+					if time.time() - self.lastattack >= self.attackSpeed:
+						if self.player.mode is 1:
+							self.attackPlayer()
+						elif self.player.mode is 0:
+							#self.player.unheal(self.attack)
+							self.player.attacked(self.attack)
+						self.lastattack = time.time()
+						return True
 				self.lastmove = time.time()
-
-				return True
 	
 	def die(self):
 		self.health[0] = 0
@@ -59,30 +64,3 @@ class Pos():
 		self.pos = lambda: [x,y]
 
 def attackModel(botPos, goalPos): pass
-
-
-def aStar(self, graph, current, end):
-    openList = set()
-    closedList = set()
-    path = []
-
-    def retracePath(c):
-        path.insert(0,c)
-        if c.parent == None:
-            return
-        retracePath(c.parent)
-
-    openList.append(current)
-    while len(openList) is not 0:
-        current = min(openList, key=lambda inst:inst.H)
-        if current == end:
-            return retracePath(current)
-        openList.remove(current)
-        closedList.append(current)
-        for tile in graph[current]:
-            if tile not in closedList:
-                tile.H = (abs(end.x-tile.x)+abs(end.y-tile.y))*10 
-                if tile not in openList:
-                    openList.append(tile)
-                tile.parent = current
-    return path

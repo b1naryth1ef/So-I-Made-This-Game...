@@ -34,19 +34,13 @@ class Player():
 
 	def pickup(self, item): return self.inv.addItem(item)
 
+	def clearAttackAnimation(self):
+		game.MODIFY = 0
+
 	def attacked(self, amount): #@DEV Fix this shit. It's broken..
-		x, y = self.pos
-		am = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
-
-		for pos in self.lastModified:
-			self.map.unmodifyChar(pos)
-			self.map.uncolorChar(pos)
-
-		self.lastModified = am
-
-		for pos in am:
-			self.map.modifyChar(pos, '*')
-			self.map.colorChar(pos, RED)
+		self.unheal(amount)
+		game.MODIFY = 1
+		#game.addEvent(self.clearAttackAnimation, .1)
 
 	def attackMode(self, bot):
 		self.selectMap(0)
@@ -89,9 +83,8 @@ class Player():
 		if self.health[0] <= 0 and self.dead is False: self.die()
 
 		for i in self.ai:
-			if i.alive is True and i.map == self.map.id and self.pos == i.pos:
+			if i.alive is True and i.map == self.map.id and self.pos == i.pos and self.mode == 1:
 				i.attackPlayer()
-
 
 	def niceInv(self):
 		li = {}
@@ -134,6 +127,7 @@ class Player():
 
 	def selectMap(self, map):
 		self.map = self.levels[str(map)]
+		game.GETNEWREND = True
 
 	def aiPos(self, pos):
 		if self.ai != [] and self.ai != None:
