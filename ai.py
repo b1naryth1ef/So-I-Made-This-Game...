@@ -36,6 +36,7 @@ class AI():
 
 	def move(self):
 		if time.time() - self.lastmove >= self.speed:
+			self.lastmove = time.time()
 			if self.goal is 'player':
 				self.pathFindy.findPath(tuple(self.player.pos), tuple(self.pos), self.player.levels[str(self.map)].hitMap) 
 				f = self.pathFindy.path
@@ -50,8 +51,7 @@ class AI():
 							#self.player.unheal(self.attack)
 							self.player.attacked(self.attack)
 						self.lastattack = time.time()
-						return True
-				self.lastmove = time.time()
+						return True	
 	
 	def die(self):
 		self.health[0] = 0
