@@ -106,17 +106,5 @@ class Map():
 				else: lines[_y][_x] = char
 		return self.rend(lines)
 
-	def pathRender(self):
-		op = []
-		cl = []
-
-		for i in self.hitMap:
-			if self.hitMap[i][0] == True: op.append(i)
-			else: cl.append(i)
-		
-		print op
-		print '\n\n\n\n\n'
-		print cl
-
 	#lines[self.player.pos[1]][self.player.pos[0]] = self.player.char
 

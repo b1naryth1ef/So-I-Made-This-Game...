@@ -5,7 +5,7 @@ from levels import level1, level2, level0
 from mapper import Map
 from player import Player
 from ai import AI
-from items import Apple, BadApple
+from items import Apple, BadApple, WoodSword
 from colors import GREEN, BLACK, WHITE, RED, ORANGE, BLUE, health
 
 THREADS = []
@@ -37,6 +37,7 @@ p1.selectMap(1)
 p1.ai = [AI('Joe', p1, color=BLUE, Map=1).spawn()]
 p1.map.pathRender()
 p1.inv[1] = BadApple()
+p1.inv[2] = WoodSword()
 
 win.fill(bgcolor=BLACK)
 win.putchars('Teh Game', 20, 3, fgcolor=WHITE)
@@ -53,14 +54,6 @@ def screenLoop():
 	global updateRender
 	#p1.map.updateChar((10,10), "8") #This physically changes the map... Not really safe...
 	p1.map.modifyChar((10,10), "8") #This puts a place holder onto the map. Much safer...
-	render()
- 
-def inventory():
-	li = p1.niceInv()
-	choice = reqs.selectionScreen(li, 'Inventory:', ORANGE, '[Enter] to select | [R] to dump | [Q] to exit', ORANGE, True)
-	if choice[0] != None and choice[1] != None:
-		if p1.inv[choice[0]].type == 'food':
-			p1.eatObj(p1.inv[choice[0]])
 	render()
 
 def findSaves(home=os.getcwd()):
@@ -151,8 +144,8 @@ def loop():
 			if 'a' in inp.value[0] and p1.moveLeft() is True: updateRender = True
 			if 's' in inp.value[0] and p1.moveDown() is True: updateRender = True
 			if 'd' in inp.value[0] and p1.moveRight() is True: updateRender = True
-			if 'x' in inp.value[0]: p1.unheal(1) #various tests go here
-			if 'i' in inp.value[0]: inventory()
+			if 'x' in inp.value[0]: p1.useWeapon() #various tests go here
+			if 'i' in inp.value[0]: p1.displayInventory()
 			
 		if time.time() - LASTRENDER >= 1:
 			LASTRENDER = time.time()
@@ -164,7 +157,7 @@ def loop():
 
 		if p1.ai != None and p1.ai != []:
 			for i in p1.ai:
-				if i.map == p1.map.id:
+				if i.map == p1.map.id and i.alive is True:
 					if i.move() is True:
 						updateRender = True
 		

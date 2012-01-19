@@ -75,8 +75,13 @@ class Weapon():
 		self.alive = True
 
 	def genDamage(self):
-		if self.damageModifier == 0: return (self.damage, self.knockback)
-		else: return (self.damage*self.damageModifier, self.knockback*self.knockbackModifier)
+		damMod = self.damageModifier
+		knkMod = self.knockbackModifier
+		if self.damageModifier == 0:
+			damMod = 1
+		if self.knockbackModifier == 0:
+			knkMod = 1
+		return (self.damage*damMod, self.knockback*knkMod)
 
 class Apple(Food):
 	def __init__(self):
@@ -86,7 +91,7 @@ class Apple(Food):
 class BadApple(Food):
 	def __init__(self):
 		self.id = 5
-		Food.__init__(self, 'Bad Apple', 3, 0, True, 1, 5, .5)
+		Food.__init__(self, 'Bad Apple', 3, 0, True, 10, 5, .5)
 
 class WoodSword(Weapon):
 	def __init__(self):

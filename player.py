@@ -1,8 +1,9 @@
 import reqs, random, items, game, time
-from colors import health, RED
+from colors import health, RED, ORANGE
 
 class Player():
 	def __init__(self, name, char, pos=[3,3]):
+		import game
 		self.name = name
 		self.char = char
 		self.pos = pos
@@ -18,11 +19,25 @@ class Player():
 		self.ai = None
 		self.mode = 1
 
+		self.beforeCombat = [0, []] #MAP, POS
+		self.weaponChoice = 0
+		self.combatWith = None
 		self.movx = [0,0]
 		self.movy = [0,0]
 
 		self.poisonTime = 0
 		self.lastModified = []
+
+	def displayInventory(self):
+		li = self.niceInv()
+		choice = reqs.selectionScreen(li, 'Inventory:', ORANGE, '[Enter] to select | [R] to dump | [Q] to exit', ORANGE, True)
+		if choice[0] != None and choice[1] != None:
+			if self.inv[choice[0]].type == 'food':
+				self.eatObj(self.inv[choice[0]])
+			elif self.inv[choice[0]].type == 'weapon' and self.mode == 0:
+				self.weaponChoice = choice[0]
+				#self.atkObj(self.inv[choice[0]])
+		game.render()
 
 	def getStatus(self):
 		if self.poisoned[0] is True: return ['Poisoned!', health[1]]
@@ -34,18 +49,27 @@ class Player():
 
 	def pickup(self, item): return self.inv.addItem(item)
 
-	def clearAttackAnimation(self):
-		game.MODIFY = 0
+	def useWeapon(self): #@DEV add an animation
+		if self.mode == 0 and self.combatWith.alive is True:
+			if self.weaponChoice == 0: pass #@DEV use knife/fists?
+			else: self.atkObj(self.inv[self.weaponChoice])
 
-	def attacked(self, amount): #@DEV Fix this shit. It's broken..
+	def attacked(self, amount):
 		self.unheal(amount)
 		game.MODIFY = 1
-		#game.addEvent(self.clearAttackAnimation, .1)
 
 	def attackMode(self, bot):
+		self.beforeCombat = [self.map.id, self.pos]
 		self.selectMap(0)
 		self.pos = self.map.startPos
 		self.mode = 0 #Attack mode
+		self.combatWith = bot
+
+	def wonBattle(self): #@DEV add an animation
+		self.selectMap(self.beforeCombat[0])
+		self.pos = self.beforeCombat[1]
+		self.mode = 1
+		self.combatWith = None
 
 	def newPickup(self, item): 
 		i = items.itemz[item]()
@@ -60,7 +84,6 @@ class Player():
 		if self.poisoned[0] is True:
 			if time.time() - self.poisonTime <= self.poisoned[2]:
 				if time.time() - self.poisoned[3] > 1:
-					print 'rarr'
 					self.unheal(self.poisoned[1])
 					self.poisoned[3] = time.time()
 			else:
@@ -96,6 +119,7 @@ class Player():
 	def die(self):
 		self.health[0] = -1
 		self.dead = True
+		self.combatWith = None
 
 	def unheal(self, amount):
 		if self.health[0]-amount < 0: self.die()
@@ -119,6 +143,11 @@ class Player():
 		return False
 
 	def useObj(self, obj): pass
+	def atkObj(self, obj):
+		if self.mode == 0:
+			dam = obj.genDamage()
+			self.combatWith.unheal(dam[0])
+			self.unheal(dam[1])
 
 	def moveUp(self): return self.move(y=-1)
 	def moveDown(self): return self.move(y=1)

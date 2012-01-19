@@ -18,6 +18,7 @@ class AI():
 		self.alive = False
 		self.pos = [10, 10]
 
+		self.combatmode = 0
 		self.lastmove = time.time()
 		self.lastattack = time.time()
 	
@@ -28,6 +29,7 @@ class AI():
 
 	def attackPlayer(self): 
 		print 'attacked'
+		self.combatmode = 1
 		self.player.attackMode(self)
 		self.pos = [2,2]
 		self.map = 0
@@ -35,8 +37,8 @@ class AI():
 	def attackEntity(self): pass
 
 	def move(self):
-		if time.time() - self.lastmove >= self.speed:
-			self.lastmove = time.time()
+		if time.time() - self.lastmove >= self.speed and self.alive is True:
+			self.lastmove = time.time() #@NOTE Make sure this stays put. Will wreck shit otherwise (the returns cancel it out)
 			if self.goal is 'player':
 				self.pathFindy.findPath(tuple(self.player.pos), tuple(self.pos), self.player.levels[str(self.map)].hitMap) 
 				f = self.pathFindy.path
@@ -54,8 +56,14 @@ class AI():
 						return True	
 	
 	def die(self):
+		if self.combatmode == 1 and self.player.mode == 0:
+			self.player.wonBattle()
 		self.health[0] = 0
 		self.alive = False
+
+	def unheal(self, amount):
+		if self.health[0]-amount < 0: self.die()
+		else: self.health[0]-=amount
 
 class Pos():
 	def __init__(self, x, y):
