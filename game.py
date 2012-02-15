@@ -4,12 +4,16 @@ from pygame.locals import *
 from levels import level1, level2, level0
 from mapper import Map
 from player import Player
+from items import Projectile
 from ai import AI
 from items import Apple, BadApple, WoodSword
 from colors import GREEN, BLACK, WHITE, RED, ORANGE, BLUE, health
 
 THREADS = []
 EVENTS = {}
+TICKS = {}
+ENTITIES = []
+BAD_ENTITIES = []
 MESSAGES = []
 WINWIDTH = 50
 WINHEIGHT = 25
@@ -19,8 +23,10 @@ GETNEWREND = False
 FPS = 5
 FRAME = 0
 LASTRENDER = 0
+LASTFRAME = 0
 OLDHASH = None
 MODIFY = 0
+THROTTLE = .03 #Lower = worse performance
 
 win = pygcurse.PygcurseWindow(WINWIDTH, WINHEIGHT, fullscreen=False)
 win.autoupdate = False
@@ -44,6 +50,26 @@ win.putchars('[enter]', 21, 4, fgcolor=WHITE)
 win.update()
 inp.waitFor('enter')
 reqs.startup()
+
+def addEntity(entity, li):
+	global ENTITIES
+	if li == -1: li = BAD_ENTITIES
+	elif li == 1: li = ENTITIES
+	li.append(entity)
+	return len(li)-1
+
+def removeEntity(sli, li):
+	if li == 0: li = [BAD_ENTITIES, ENTITIES]
+	elif li == 1: li = [ENTITIES]
+	elif li == -1: li = [BAD_ENTITIES]
+	for i in li: i.pop(sli)
+
+def moveEntity(sli, from_li):
+	if from_li == 1: li = [ENTITIES, BAD_ENTITIES]
+	elif from_li == -1: li = [BAD_ENTITIES, ENTITIES]
+	e = li[0].pop(sli)
+	li[1].append(sli)
+	return len(li[1])-1
 
 def addMessage(msg, color=BLUE): MESSAGES.append((msg,color))
 
@@ -86,12 +112,18 @@ def init():
 
 rendery = p1.map.newNewRender()	
 
+def testEnts():
+	x = Projectile('Projectile', .3)
+	x.spawn(p1.pos, [1,0])
+
 def getNewRender():
 	global rendery
 	rendery = p1.map.newNewRender()	
 
 def render():
-	global updateRender, FRAME, MODIFY, GETNEWREND, rendery
+	global updateRender, FRAME, MODIFY, GETNEWREND, rendery, LASTFRAME
+	if time.time() - LASTFRAME < THROTTLE:
+		return False
 	if GETNEWREND is True:
 		rendery = p1.map.newNewRender()	
 		GETNEWREND = False
@@ -108,6 +140,9 @@ def render():
 		for bot in p1.ai:
 			if bot.alive is True and bot.map == p1.map.id:
 				win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
+	if len(ENTITIES) >= 1:
+		for ent in ENTITIES:
+			win.putchar(ent.char, ent.pos[0], ent.pos[1], fgcolor=ent.color)
 	if p1.display is True: win.putchar(p1.char, p1.pos[0], p1.pos[1], fgcolor=GREEN)
 	for line in p1.map.colorModify.values(): #Render any itmes in colorModify
 		for item in line:
@@ -134,11 +169,12 @@ def render():
 			MESSAGES.remove(i)
 	win.putchars('Pos: %s | Frame: %s' % (p1.pos, FRAME), 1, _x+1, fgcolor=ORANGE)
 	win.update()
+	LASTFRAME = time.time()
 	if r is True: inp.waitFor('enter', 1)
 	FRAME += 1
 
 def loop():
-	global updateRender, FRAME, lastFrame, LASTRENDER, OLDHASH
+	global updateRender, FRAME, lastFrame, LASTRENDER, OLDHASH, ENTITIES
 	while True:
 		if updateRender is True: render()
 		inp.retrieve()
@@ -148,21 +184,31 @@ def loop():
 			if 'a' in inp.value[0] and p1.moveLeft() is True: updateRender = True
 			if 's' in inp.value[0] and p1.moveDown() is True: updateRender = True
 			if 'd' in inp.value[0] and p1.moveRight() is True: updateRender = True
-			if 'x' in inp.value[0]: p1.useWeapon() #@NOTE this bind will change...
+			if 'x' in inp.value[0]: testEnts()#p1.useWeapon() #@NOTE this bind will change...
 			if 'i' in inp.value[0]: p1.displayInventory()
 			
-		if time.time() - LASTRENDER >= 1:
+		if time.time() - LASTRENDER >= 1: #Fire a tick
 			LASTRENDER = time.time()
 			p1.tick()
 
-		if p1.hash() != OLDHASH: #Check to see if we should update the render
+		if not p1.checkHash(OLDHASH): #Has the player object changed sense the last render?
 			OLDHASH = p1.hash()
 			updateRender = True
+
+		if TICKS != {}:
+			for i in TICKS:
+				TICKS[i].tick()
 
 		if p1.ai != None and p1.ai != []:
 			for i in p1.ai:
 				if i.map == p1.map.id and i.alive is True:
 					if i.move() is True:
+						updateRender = True
+
+		if ENTITIES != None and ENTITIES != []:
+			for ent in ENTITIES:
+				if ent.doTick is True:
+					if ent.tick() is True:
 						updateRender = True
 		
 		if EVENTS != {} and len(EVENTS) != 0:

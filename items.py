@@ -1,20 +1,61 @@
-import random
+import random, time
 
 class Entity():
-	def __init__(self, Type, name, Map):
+	def __init__(self, Type, name):
+		#General classifications
 		self.type = Type
 		self.name = name
-
-		self.alive = False
+		self.color = (255, 255, 255)
 		self.char = '+'
+		self.pos = [0, 0]
+		self.speed = .3
 
-		self.map = Map
+		#Engine classifications
+		self.slice = [None, 0] #Slice in the ENTITIES list (Second is which list, -1 is bad, 1 is good)
+		self.map = None
 
+		#Bools
+		self.alive = False
+		self.doTick = False
+		self.spawned = False
+
+	#Over-rides
 	def spawn(self): pass
-
 	def despawn(self): pass
+	def action(self, hit): pass
+	def tick(self): pass
 
-	def action(self): pass
+
+class Projectile(Entity):
+	def __init__(self, name, speed=0):
+		global game
+		import game
+		Entity.__init__(self, 'projectile', name)
+		self.lastMove = 0
+		self.speed = speed
+		self.velo = [0, 0]
+
+	def spawn(self, pos, velo):
+		self.velo = velo
+		self.pos = pos
+		self.alive, self.doTick, self.spawned = True, True, True
+		self.slice = [game.addEntity(self, 1), 1]
+
+	def despawn(self):
+		self.alive, self.doTick = False, False
+		self.slice = [game.moveEntity(self.slice[0], 1), -1]
+
+	def action(self, hit):
+		if hit.type == 'player': print 'HIT PLAYER' #Eventually fire player.hitByEnt() or smthing
+		self.despawn()
+
+	def tick(self):
+		#print 'TICKING %s' % time.time()
+		if self.pos[1] > len(game.p1.map.niceMap): return self.despawn()
+		if self.pos[0] > len(game.p1.map.niceMap[self.pos[1]])+1 or self.pos[0] <= 0: return self.despawn()
+		if time.time() - self.lastMove >= self.speed:
+			self.pos = [i+self.velo[z] for z, i in enumerate(self.pos)] #Proud of this one
+			return True
 
 class Storage():
 	def __init__(self, name, slots=5, Type=''):
@@ -125,14 +166,19 @@ class GoldPlatedSword(Weapon):
 		self.id = 3
 		Weapon.__init__(self, 'Gold Plated Sword', 10, 0, 0, 0, None, 75, 55)
 
-class Projectile(Entity):
-	def __init__(self, name):
-		Entity.__init__(self, name, 'Projectile')
+#class Projectile(Entity):
+#	def __init__(self, name):
+#		Entity.__init__(self, 'Projectile', name)
 
 class Arrow(Projectile):
 	def __init__(self):
 		self.id = 0
 		Projectile.__init__(self, 'Arrow', )
+
+class WoodBow(Weapon):
+	def __init__(self):
+		self.id = 6
+		Weapon.__init__(self, 'Wood Bow')
 
 entityz = {
 	0:Arrow
@@ -144,5 +190,6 @@ itemz = {
 	2:IronSword,
 	3:GoldPlatedSword,
 	4:BackPack,
-	5:BadApple
+	5:BadApple,
+	6:WoodBow
 }

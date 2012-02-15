@@ -1,10 +1,12 @@
 import time, string
 from pygame.locals import *
+
 def startup():
 	global win,p1,inp,FRAME,RED,BLUE,BLACK
 	from game import win, p1, inp, FRAME, RED, BLUE, BLACK
 
 trade = lambda x,y: (y,x)
+toggle = lambda x: not x
 
 def startupScreen(win):
 	pass
@@ -54,10 +56,8 @@ def selectionScreen(sel, header, hcolor=(255,0,0), footer='', fcolor=(255,0,0), 
 		win.putchars(footer, 1, valy, fgcolor=fcolor)
 		win.update()
 		val = inp.mwaitFor(['w','s','enter', 'r', 'q'])
-		if val == 'w' and selected >= 2:
-			selected -= 1
-		elif val == 's' and selected < len(sel.keys()):
-			selected += 1
+		if val == 'w' and selected >= 2: selected -= 1
+		elif val == 's' and selected < len(sel.keys()): selected += 1
 		elif val == 'r':
 			if niceremove is True:
 				sel[selected] = 'Empty!'
@@ -73,7 +73,9 @@ def selectionScreen(sel, header, hcolor=(255,0,0), footer='', fcolor=(255,0,0), 
 			return (None, None)
 		valy = 1
 
-eatMessage = ['Om nom nom! Tis a good %s',
+eatMessage = [
+'Om nom nom! Tis a good %s',
 'You eat the %s like a boss...',
 'You tear the %s apart, shoving pieces in your mouth',
-'RARR! Gooooood %s']
+'RARR! Gooooood %s',
+'You garble down the %s']

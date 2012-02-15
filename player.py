@@ -18,6 +18,7 @@ class Player():
 		self.levels = None
 		self.ai = None
 		self.mode = 1
+		self.type = 'player'
 
 		self.beforeCombat = [0, []] #MAP, POS
 		self.weaponChoice = 0
@@ -176,6 +177,7 @@ class Player():
 
 		if self.map.hitMap[cPos][0] == True: 
 			if self.map.hitMap[cPos][1] == 'PORTAL':
+				self.lastPos = self.pos
 				self.pos = list(self.map.infoMap[cPos]['portal'][2])
 				self.lastmap = self.map.id
 				self.map = self.levels[self.map.infoMap[cPos]['portal'][1]]
@@ -183,7 +185,10 @@ class Player():
 			self.lastPos = self.pos
 			self.pos = nPos
 			return True
-		else:
-			return False
+		return False
 
 	def hash(self): return (self.health[0], self.pos, self.inv)
+
+	def checkHash(self, hashy):
+		if self.hash() != hashy: return False
+		else: return True
