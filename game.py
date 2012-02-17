@@ -1,4 +1,4 @@
-import pygame, random, sys, os, time, pygcurse, thread
+import pygame, sys, os, pickle, time, pygcurse
 import inputr, reqs
 from pygame.locals import *
 from levels import level1, level2, level0
@@ -9,18 +9,15 @@ from ai import AI
 from items import Apple, BadApple, WoodSword
 from colors import GREEN, BLACK, WHITE, RED, ORANGE, BLUE, health
 
-THREADS = []
 EVENTS = {}
 TICKS = {}
-ENTITIES = []
-BAD_ENTITIES = []
+ENTITIES = {}
+BAD_ENTITIES = {}
 MESSAGES = []
-WINWIDTH = 50
-WINHEIGHT = 25
-TEXTCOLOR = WHITE
-BACKGROUNDCOLOR = (0, 0, 0)
+WINWIDTH = 50 #@DEV Change for beta!
+WINHEIGHT = 25 #@DEV Change for beta!
 GETNEWREND = False
-FPS = 5
+RENDER_FAIL = True
 FRAME = 0
 LASTRENDER = 0
 LASTFRAME = 0
@@ -40,14 +37,14 @@ p1.levels = {
 	'2': Map(2, level2.nice, level2.info, p1).genHitMap()
 }
 p1.selectMap(1)
-p1.ai = [AI('Joe', p1, color=BLUE, Map=1).spawn()]
-p1.inv[1] = BadApple()
-p1.inv[2] = WoodSword()
+p1.ai = [AI('Mr. Starting Bot', p1, color=BLUE, Map=1).spawn()]
+p1.inv.addItem(BadApple())
+p1.inv.addItem(WoodSword())
 
 win.fill(bgcolor=BLACK)
 win.putchars('Teh Game', 20, 3, fgcolor=WHITE)
-win.putchars('[enter]', 21, 4, fgcolor=WHITE)
-win.update()
+win.putchars('[enter]', 21, 4, fgcolor=WHITE, update=True)
+#win.update()
 inp.waitFor('enter')
 reqs.startup()
 
@@ -55,8 +52,11 @@ def addEntity(entity, li):
 	global ENTITIES
 	if li == -1: li = BAD_ENTITIES
 	elif li == 1: li = ENTITIES
-	li.append(entity)
-	return len(li)-1
+	if len(li.keys()) == 0: v = [0]
+	else: v = li.keys()
+	p = max(v)+1
+	li[p] = entity
+	return p
 
 def removeEntity(sli, li):
 	if li == 0: li = [BAD_ENTITIES, ENTITIES]
@@ -65,11 +65,11 @@ def removeEntity(sli, li):
 	for i in li: i.pop(sli)
 
 def moveEntity(sli, from_li):
-	if from_li == 1: li = [ENTITIES, BAD_ENTITIES]
-	elif from_li == -1: li = [BAD_ENTITIES, ENTITIES]
-	e = li[0].pop(sli)
-	li[1].append(sli)
-	return len(li[1])-1
+	if from_li == 1: li = ENTITIES
+	elif from_li == -1: li = BAD_ENTITIES
+	ent = li[sli]
+	del li[sli]
+	return addEntity(ent, from_li*-1)
 
 def addMessage(msg, color=BLUE): MESSAGES.append((msg,color))
 
@@ -82,48 +82,59 @@ def screenLoop():
 	render()
 
 def findSaves(home=os.getcwd()):
-    """Find save files, and return a list of them"""
-    fn = []
-    try:
-        for i in os.listdir(os.path.join(home, 'saves')):
-            if i.endswith('.dat') and not i.startswith("_"):
-                fn.append(os.path.join(home, 'saves', i))
-        return fn
-    except:
-        os.mkdir(os.path.join(home, 'saves'))
-        return findSaves()
+	print 'heyaaa!'
+	if not os.path.exists(os.path.join(home, 'save_dir')):
+		os.mkdir(os.path.join(home, 'save_dir'))
+	if os.path.exists(os.path.join(home, 'save_dir', 'save_file.dat')): 
+		return True
+	else:
+		return False
 
-def init():
+def loadSave():
+	global p1, ENTITIES, TICKS
+	with open(os.path.join(os.getcwd(), 'save_dir', 'save_file.dat'), 'r') as f:
+		save = pickle.load(f)
+		p1 = save['p1']
+		TICKS = save['ticks']
+		ENTITIES = save['ents']
+		#print p1.ai[0].alive
+
+def init(makeSave=False):
+	global p1
 	win.fill(bgcolor=BLACK)
-	saves = findSaves()
-	if len(saves) is 0:
-		win.putchars('No save files found! Press [enter] to create new game...', 1, 1)
+	save = findSaves()
+	print save
+	if not save:
+		win.putchars('No save file found! Press [enter] to create new game...', 1, 1)
 		win.update()
 		inp.waitFor('enter', 1)
-		reqs.ask('Name')
+		p1.name = reqs.ask('Player Name')
 	else:
-		nicelist = {}
-		y = 0
-		for i in saves:
-			y+=1
-			nicelist[y] = i.split('/')[-1:][0]
-		nicelist[y+1] = '[New]'
-		print reqs.selectionScreen(nicelist, 'Save Files:', ORANGE, '[Enter] to select | [R] to dump | [Q] to exit', ORANGE, True)
+		loadSave()
 
 rendery = p1.map.newNewRender()	
 
-def testEnts():
-	x = Projectile('Projectile', .3)
-	x.spawn(p1.pos, [1,0])
+def saveAndQuit():
+	global p1
+	with open(os.path.join(os.getcwd(), 'save_dir', 'save_file.dat'), 'w') as f:
+		print 'Saving!'
+		pickle.dump({'p1':p1, 'ticks':TICKS, 'ents':ENTITIES}, f)
+		sys.exit()
+
+def testEnts(x, y):
+	F = Projectile('Projectile', .3)
+	F.spawn(p1.pos, [y, x])
 
 def getNewRender():
 	global rendery
 	rendery = p1.map.newNewRender()	
 
 def render():
-	global updateRender, FRAME, MODIFY, GETNEWREND, rendery, LASTFRAME
-	if time.time() - LASTFRAME < THROTTLE:
+	global updateRender, FRAME, MODIFY, GETNEWREND, rendery, LASTFRAME, RENDER_FAIL
+	if RENDER_FAIL and time.time() - LASTFRAME < THROTTLE:
 		return False
+	else:
+		RENDER_FAIL = True
 	if GETNEWREND is True:
 		rendery = p1.map.newNewRender()	
 		GETNEWREND = False
@@ -140,8 +151,8 @@ def render():
 		for bot in p1.ai:
 			if bot.alive is True and bot.map == p1.map.id:
 				win.putchar(bot.char, bot.pos[0], bot.pos[1], fgcolor=bot.color)
-	if len(ENTITIES) >= 1:
-		for ent in ENTITIES:
+	if len(ENTITIES.keys()) >= 1:
+		for ent in ENTITIES.values():
 			win.putchar(ent.char, ent.pos[0], ent.pos[1], fgcolor=ent.color)
 	if p1.display is True: win.putchar(p1.char, p1.pos[0], p1.pos[1], fgcolor=GREEN)
 	for line in p1.map.colorModify.values(): #Render any itmes in colorModify
@@ -176,6 +187,7 @@ def render():
 def loop():
 	global updateRender, FRAME, lastFrame, LASTRENDER, OLDHASH, ENTITIES
 	while True:
+		ent_pos = {}
 		if updateRender is True: render()
 		inp.retrieve()
 		if inp.value != ([], []):
@@ -184,8 +196,14 @@ def loop():
 			if 'a' in inp.value[0] and p1.moveLeft() is True: updateRender = True
 			if 's' in inp.value[0] and p1.moveDown() is True: updateRender = True
 			if 'd' in inp.value[0] and p1.moveRight() is True: updateRender = True
-			if 'x' in inp.value[0]: testEnts()#p1.useWeapon() #@NOTE this bind will change...
+			if 'x' in inp.value[0]: saveAndQuit()#p1.useWeapon() #@NOTE this bind will change...
 			if 'i' in inp.value[0]: p1.displayInventory()
+			#ENTS!
+			if 'up' in inp.value[0]: testEnts(-1, 0)
+			elif 'down' in inp.value[0]: testEnts(1, 0)
+			elif 'left' in inp.value[0]: testEnts(0, -1)
+			elif 'right' in inp.value[0]: testEnts(0, 1)
+
 			
 		if time.time() - LASTRENDER >= 1: #Fire a tick
 			LASTRENDER = time.time()
@@ -204,9 +222,19 @@ def loop():
 				if i.map == p1.map.id and i.alive is True:
 					if i.move() is True:
 						updateRender = True
+					if tuple(i.pos) in ent_pos:
+						ent_pos[tuple(i.pos)].append(i)
+					else:
+						ent_pos[tuple(i.pos)] = [i]
 
-		if ENTITIES != None and ENTITIES != []:
-			for ent in ENTITIES:
+		if ENTITIES != None and ENTITIES != {}:
+			for ent in ENTITIES.values(): #HITCHECK ON PLAYER
+				if ent.pos == p1.pos: ent.collide(p1)
+				if tuple(ent.pos) in ent_pos.keys(): #HITCHECK ON OTHER BOTS
+					for i in ent_pos[tuple(ent.pos)]:
+						ent.collide(i)
+
+			for ent in ENTITIES.values():
 				if ent.doTick is True:
 					if ent.tick() is True:
 						updateRender = True

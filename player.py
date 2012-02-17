@@ -12,7 +12,7 @@ class Player():
 		self.dead = False
 		self.display = True
 		self.poisoned = [False, 0, 0, 0] #Is poisoned and amount per tick, and duration, and last done
-		self.realpos = lambda: [self.pos[0]-1, self.pos[1]-1]
+		#self.realpos = lambda: 
 		self.inv = items.BackPack()
 		self.map = None
 		self.levels = None
@@ -28,6 +28,9 @@ class Player():
 
 		self.poisonTime = 0
 		self.lastModified = []
+
+	def realpos(self): return [self.pos[0]-1, self.pos[1]-1]
+	def collide(self, ent): pass
 
 	def displayInventory(self):
 		li = self.niceInv()

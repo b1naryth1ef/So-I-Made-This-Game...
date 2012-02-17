@@ -9,6 +9,7 @@ class Entity():
 		self.char = '+'
 		self.pos = [0, 0]
 		self.speed = .3
+		self.damage = 0
 
 		#Engine classifications
 		self.slice = [None, 0] #Slice in the ENTITIES list (Second is which list, -1 is bad, 1 is good)
@@ -27,13 +28,14 @@ class Entity():
 
 
 class Projectile(Entity):
-	def __init__(self, name, speed=0):
+	def __init__(self, name, speed=0, damage=9000): #ITS OVER 9,000!
 		global game
 		import game
 		Entity.__init__(self, 'projectile', name)
 		self.lastMove = 0
 		self.speed = speed
 		self.velo = [0, 0]
+		self.damage = damage
 
 	def spawn(self, pos, velo):
 		self.velo = velo
@@ -44,18 +46,24 @@ class Projectile(Entity):
 	def despawn(self):
 		self.alive, self.doTick = False, False
 		self.slice = [game.moveEntity(self.slice[0], 1), -1]
+		game.updateRender = True
 
-	def action(self, hit):
-		if hit.type == 'player': print 'HIT PLAYER' #Eventually fire player.hitByEnt() or smthing
-		self.despawn()
+	def collide(self, hit):
+		if hit.type == 'player': game.p1.collide(self)#print 'HIT PLAYER' #Eventually fire player.hitByEnt() or smthing
+		else: 
+			if hit.collide(self) is True:
+				self.despawn()
 
 	def tick(self):
 		#print 'TICKING %s' % time.time()
-		if self.pos[1] > len(game.p1.map.niceMap): return self.despawn()
-		if self.pos[0] > len(game.p1.map.niceMap[self.pos[1]])+1 or self.pos[0] <= 0: return self.despawn()
-		if time.time() - self.lastMove >= self.speed:
-			self.pos = [i+self.velo[z] for z, i in enumerate(self.pos)] #Proud of this one
-			return True
+		try: #BUTCHER ALL THE THINGS!
+			if self.pos[1] > len(game.p1.map.niceMap): return self.despawn()
+			if self.pos[0] > len(game.p1.map.niceMap[self.pos[1]])+1 or self.pos[0] <= 0: return self.despawn()
+			if time.time() - self.lastMove >= self.speed:
+				self.pos = [i+self.velo[z] for z, i in enumerate(self.pos)] #Proud of this one
+				return True
+		except:
+			self.despawn()
 
 class Storage():
 	def __init__(self, name, slots=5, Type=''):

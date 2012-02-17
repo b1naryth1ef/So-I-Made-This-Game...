@@ -37,7 +37,7 @@ def selectionScreen(sel, header, hcolor=(255,0,0), footer='', fcolor=(255,0,0), 
 	selected = 1
 	valy = 1
 	deld = []
-	print sel
+	#print sel
 	while True:
 		FRAME+=1 #Count this as a frame broski!
 		win.fill(bgcolor=BLACK)

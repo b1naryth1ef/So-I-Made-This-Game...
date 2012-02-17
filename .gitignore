@@ -1,9 +1,12 @@
 .DS_Store
 *.pyc
 *~
+*#*
 xpygame/
 test/
 dist/
 build/
 test.py
 setup.py
+saves/
+save_dir/

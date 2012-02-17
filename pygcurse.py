@@ -1063,7 +1063,7 @@ def pygprint(self, obj='', *objs, sep=' ', end='\n', fgcolor=None, bgcolor=None,
         return char
 
 
-    def putchars(self, chars, x=None, y=None, fgcolor=None, bgcolor=None, indent=False):
+    def putchars(self, chars, x=None, y=None, fgcolor=None, bgcolor=None, indent=False, update=False):
         # doc - does not modify the cursor. That's how putchars is different from print() or write()
         # doc - also, putchars does wrap but doesn't cause scrolls. (if you want a single line, just put putchar() calls in a loop)
         if type(chars) != str:
@@ -1100,7 +1100,7 @@ def pygprint(self, obj='', *objs, sep=' ', end='\n', fgcolor=None, bgcolor=None,
                 self._screenbgcolor[tempcurx][tempcury] = bgcolor
             tempcurx += 1
 
-        if self._autoupdate:
+        if self._autoupdate or update:
             self.update()
 
 
